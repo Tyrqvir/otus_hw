@@ -15,14 +15,16 @@ type PairList []Pair
 func (p PairList) Len() int {
 	return len(p)
 }
+
 func (p PairList) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
+
 func (p PairList) Less(i, j int) bool {
 	first := p[i]
 	second := p[j]
 
-	switch true {
+	switch {
 	case first.Count == second.Count:
 		return p.LexicographicalSort(first.Word, second.Word)
 	default:
@@ -66,7 +68,6 @@ func (p *PairList) getTopWords(count int) []string {
 }
 
 func Top10(text string) []string {
-
 	mapOfWords := make(map[string]int)
 
 	sliceOfWords := strings.Fields(text)
@@ -78,7 +79,6 @@ func Top10(text string) []string {
 		} else {
 			mapOfWords[word] = 1
 		}
-
 	}
 
 	pairList := new(PairList)
