@@ -24,29 +24,23 @@ func (p PairList) Less(i, j int) bool {
 	first := p[i]
 	second := p[j]
 
-	switch {
-	case first.Count == second.Count:
+	if first.Count == second.Count {
 		return p.LexicographicalSort(first.Word, second.Word)
-	default:
+	} else {
 		return first.Count > second.Count
 	}
 }
 
 func (p PairList) LexicographicalSort(firstString, secondString string) bool {
-	switch strings.Compare(firstString, secondString) {
-	case 1:
-		return false
-	default:
-		return true
-	}
+	return strings.Compare(firstString, secondString) != 1
 }
 
 func (p *PairList) Sort() {
 	sort.Sort(*p)
 }
 
-func (p *PairList) transformMapToSlice(mapOfWords *map[string]int) {
-	for word, count := range *mapOfWords {
+func (p *PairList) transformMapToSlice(mapOfWords map[string]int) {
+	for word, count := range mapOfWords {
 		*p = append(*p, Pair{
 			Word:  word,
 			Count: count,
@@ -73,9 +67,8 @@ func Top10(text string) []string {
 	sliceOfWords := strings.Fields(text)
 
 	for _, word := range sliceOfWords {
-		if val, ok := mapOfWords[word]; ok {
-			val++
-			mapOfWords[word] = val
+		if _, ok := mapOfWords[word]; ok {
+			mapOfWords[word]++
 		} else {
 			mapOfWords[word] = 1
 		}
@@ -83,7 +76,7 @@ func Top10(text string) []string {
 
 	pairList := new(PairList)
 
-	pairList.transformMapToSlice(&mapOfWords)
+	pairList.transformMapToSlice(mapOfWords)
 	pairList.Sort()
 
 	result := pairList.getTopWords(10)
