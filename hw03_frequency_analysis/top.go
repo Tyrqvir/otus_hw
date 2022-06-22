@@ -26,9 +26,8 @@ func (p PairList) Less(i, j int) bool {
 
 	if first.Count == second.Count {
 		return p.LexicographicalSort(first.Word, second.Word)
-	} else {
-		return first.Count > second.Count
 	}
+	return first.Count > second.Count
 }
 
 func (p PairList) LexicographicalSort(firstString, secondString string) bool {
@@ -67,11 +66,7 @@ func Top10(text string) []string {
 	sliceOfWords := strings.Fields(text)
 
 	for _, word := range sliceOfWords {
-		if _, ok := mapOfWords[word]; ok {
-			mapOfWords[word]++
-		} else {
-			mapOfWords[word] = 1
-		}
+		mapOfWords[word]++
 	}
 
 	pairList := new(PairList)
