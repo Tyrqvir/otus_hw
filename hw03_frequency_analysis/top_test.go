@@ -1,6 +1,7 @@
 package hw03frequencyanalysis
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -46,6 +47,48 @@ var text = `Как видите, он  спускается  по  лестни�
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		require.Len(t, Top10(""), 0)
+	})
+
+	t.Run("less words in string", func(t *testing.T) {
+		expected := []string{
+			"hey",
+			"jo",
+		}
+		var sb strings.Builder
+		for i := 0; i < len(expected); i++ {
+			sb.WriteString(expected[i] + " ")
+		}
+		builtText := sb.String()
+		require.Len(t, Top10(builtText), 2)
+		require.Equal(t, expected, Top10(builtText))
+	})
+
+	t.Run("digits in string", func(t *testing.T) {
+		expected := []string{
+			"666",
+			"999",
+		}
+		var sb strings.Builder
+		for i := 0; i < len(expected); i++ {
+			sb.WriteString(expected[i] + " ")
+		}
+		builtText := sb.String()
+		require.Len(t, Top10(builtText), 2)
+		require.Equal(t, expected, Top10(builtText))
+	})
+
+	t.Run("special characters in string", func(t *testing.T) {
+		require.Len(t, Top10("$ % * 999 ( 555 hey jo )"), 9)
+	})
+
+	t.Run("only special characters in string", func(t *testing.T) {
+		require.Len(t, Top10("$ % * + - # @"), 7)
+	})
+
+	t.Run("same words in string", func(t *testing.T) {
+		text := "hey hey hey hey hey hey"
+		require.Len(t, Top10(text), 1)
+		require.Equal(t, Top10(text), []string{"hey"})
 	})
 
 	t.Run("positive test", func(t *testing.T) {
