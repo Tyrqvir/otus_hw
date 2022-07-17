@@ -1,3 +1,3 @@
 package hw04lrucache
 
-type any = interface{} //nolint
+type any = interface{} //nolint:predeclared
