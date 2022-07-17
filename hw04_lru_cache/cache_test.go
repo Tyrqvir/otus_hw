@@ -50,13 +50,71 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(1)
+
+		key := Key("keyOne")
+		val := 1
+		isExistInCache := c.Set(key, val)
+		require.False(t, isExistInCache)
+
+		valueFromCache, isExistInCache := c.Get(key)
+		require.True(t, isExistInCache)
+		require.Equal(t, val, valueFromCache)
+
+		c.Clear()
+		valueFromCache, isExistInCache = c.Get(key)
+		require.False(t, isExistInCache)
+		require.Nil(t, valueFromCache)
+	})
+
+	t.Run("Write a key twice and read it", func(t *testing.T) {
+		c := NewCache(25)
+
+		isExistInCache := c.Set("key1", 1)
+		require.False(t, isExistInCache)
+
+		isExistInCache = c.Set("key1", 2)
+		require.True(t, isExistInCache)
+
+		valueFromCache, isExistInCache := c.Get("key1")
+		require.True(t, isExistInCache)
+		require.Equal(t, 2, valueFromCache)
+	})
+
+	t.Run("knockout first element", func(t *testing.T) {
+		c := NewCache(3) // cap 3
+
+		isExistInCache := c.Set("key1", 1)
+		require.False(t, isExistInCache)
+
+		isExistInCache = c.Set("key2", 2)
+		require.False(t, isExistInCache)
+
+		isExistInCache = c.Set("key3", 3)
+		require.False(t, isExistInCache)
+
+		isExistInCache = c.Set("key4", 4)
+		require.False(t, isExistInCache)
+
+		valueFromCache, isExistInCache := c.Get("key1")
+		require.False(t, isExistInCache)
+		require.Nil(t, valueFromCache)
+
+		valueFromCache, isExistInCache = c.Get("key2")
+		require.True(t, isExistInCache)
+		require.Equal(t, 2, valueFromCache)
+
+		valueFromCache, isExistInCache = c.Get("key3")
+		require.True(t, isExistInCache)
+		require.Equal(t, 3, valueFromCache)
+
+		valueFromCache, isExistInCache = c.Get("key4")
+		require.True(t, isExistInCache)
+		require.Equal(t, 4, valueFromCache)
 	})
 }
 
 func TestCacheMultithreading(t *testing.T) {
-	t.Skip() // Remove me if task with asterisk completed.
-
 	c := NewCache(10)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)

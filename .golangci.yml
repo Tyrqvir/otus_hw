@@ -1,8 +1,9 @@
 run:
+  go: '1.17'
   tests: true
   build-tags:
     - bench
-    - !bench
+    -!bench
 
 linters-settings:
   funlen:
