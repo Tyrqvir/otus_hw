@@ -52,6 +52,7 @@ func (lc *lruCache) isQueueMoreCapacity() bool {
 }
 
 func (lc *lruCache) Clear() {
+	lc.mu.RUnlock()
 	capacity := len(lc.items)
 	lc.items = make(map[Key]*ListItem, capacity)
 	lc.queue = NewList()
