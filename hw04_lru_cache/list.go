@@ -5,13 +5,20 @@ import (
 )
 
 type List interface {
-	Len() int                  // count of list
-	Front() *ListItem          // first element of list
-	Back() *ListItem           // last element of list
-	PushFront(v any) *ListItem // add value to end position
-	PushBack(v any) *ListItem  // add value to start position
-	Remove(i *ListItem) bool   // remove element from list, bool return
-	MoveToFront(i *ListItem)   // move element to start position
+	// Len count of list
+	Len() int
+	// Front first element of list
+	Front() *ListItem
+	// Back last element of list
+	Back() *ListItem
+	// PushFront add value to end position
+	PushFront(v any) *ListItem
+	// PushBack add value to start position
+	PushBack(v any) *ListItem
+	// Remove delete element from list, bool return
+	Remove(i *ListItem) bool
+	// MoveToFront move element to start position
+	MoveToFront(i *ListItem)
 }
 
 type ListItem struct {
