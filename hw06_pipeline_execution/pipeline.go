@@ -31,9 +31,9 @@ func decorateWithDoneChannel(in In, done In) Out {
 			select {
 			case <-done:
 				return
-			case value := <-in:
+			case value, ok := <-in:
 				// If channel closed
-				if nil == value {
+				if !ok {
 					return
 				}
 				biDirectionChan <- value
