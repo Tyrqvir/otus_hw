@@ -11,13 +11,11 @@ import (
 func TestCopy(t *testing.T) {
 	type args struct {
 		fromPath string
-		toPath   string
 		offset   int64
 		limit    int64
 	}
 
 	input := computedPathByName("input.txt")
-	tmpOutput, _ := os.CreateTemp("", "tests")
 
 	tests := []struct {
 		name    string
@@ -29,7 +27,6 @@ func TestCopy(t *testing.T) {
 			name: "Test with offset 0 and limit 0",
 			args: args{
 				fromPath: input,
-				toPath:   tmpOutput.Name(),
 				offset:   0,
 				limit:    0,
 			},
@@ -40,7 +37,6 @@ func TestCopy(t *testing.T) {
 			name: "Test with offset 0 and limit 10",
 			args: args{
 				fromPath: input,
-				toPath:   tmpOutput.Name(),
 				offset:   0,
 				limit:    10,
 			},
@@ -51,7 +47,6 @@ func TestCopy(t *testing.T) {
 			name: "Test with offset 0 and limit 1000",
 			args: args{
 				fromPath: input,
-				toPath:   tmpOutput.Name(),
 				offset:   0,
 				limit:    1000,
 			},
@@ -62,7 +57,6 @@ func TestCopy(t *testing.T) {
 			name: "Test with offset 0 and limit 10000",
 			args: args{
 				fromPath: input,
-				toPath:   tmpOutput.Name(),
 				offset:   0,
 				limit:    10000,
 			},
@@ -73,7 +67,6 @@ func TestCopy(t *testing.T) {
 			name: "Test with offset 100 and limit 1000",
 			args: args{
 				fromPath: input,
-				toPath:   tmpOutput.Name(),
 				offset:   100,
 				limit:    1000,
 			},
@@ -84,7 +77,6 @@ func TestCopy(t *testing.T) {
 			name: "Test with offset 6000 and limit 1000",
 			args: args{
 				fromPath: input,
-				toPath:   tmpOutput.Name(),
 				offset:   6000,
 				limit:    1000,
 			},
@@ -94,11 +86,15 @@ func TestCopy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := Copy(tt.args.fromPath, tt.args.toPath, tt.args.offset, tt.args.limit); (err != nil) != tt.wantErr {
+			tmpOutput, _ := os.CreateTemp("", "tests")
+			defer os.Remove(tmpOutput.Name())
+			defer tmpOutput.Close()
+
+			if err := Copy(tt.args.fromPath, tmpOutput.Name(), tt.args.offset, tt.args.limit); (err != nil) != tt.wantErr {
 				t.Errorf("Copy() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			sourceFileInfo, _ := os.Stat(tt.output)
-			targetFileInfo, _ := os.Stat(tt.args.toPath)
+			targetFileInfo, _ := os.Stat(tmpOutput.Name())
 			require.Equal(t, sourceFileInfo.Size(), targetFileInfo.Size())
 		})
 	}
