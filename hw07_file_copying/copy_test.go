@@ -18,7 +18,6 @@ func TestCopy(t *testing.T) {
 
 	input := computedPathByName("input.txt")
 	tmpOutput, _ := os.CreateTemp("", "tests")
-	fmt.Println(tmpOutput.Name())
 
 	tests := []struct {
 		name    string
