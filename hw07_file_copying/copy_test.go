@@ -101,5 +101,5 @@ func TestCopy(t *testing.T) {
 }
 
 func computedPathByName(name string) string {
-	return fmt.Sprintf("%s/%s", "testData", name)
+	return fmt.Sprintf("%s/%s", "./testData", name)
 }
