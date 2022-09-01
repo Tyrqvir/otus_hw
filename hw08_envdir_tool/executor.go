@@ -23,6 +23,7 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	proxyCmd.Stdout = os.Stdout
 	proxyCmd.Stderr = os.Stderr
 	proxyCmd.Stdin = os.Stdin
+	proxyCmd.Env = os.Environ()
 
 	if err := proxyCmd.Run(); err != nil {
 		return 1
