@@ -46,7 +46,7 @@ linters:
     - gosec
     - gosimple
     - govet
-    - ifshort
+    #- ifshort // reason:deprecated
     - importas
     - ineffassign
     - lll

@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"os"
 )
 
 var (
@@ -18,5 +20,19 @@ func init() {
 
 func main() {
 	flag.Parse()
-	// Place your code here.
+
+	if len(from) == 0 || len(to) == 0 {
+		fmt.Println("Usage: main.go -from -to -limit -offset")
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	fmt.Println("Start copy process...")
+	fmt.Printf("From %s to %s.\n", from, to)
+	fmt.Printf("Params: limit: %d, offset %d.\n", limit, offset)
+
+	err := Copy(from, to, offset, limit)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
