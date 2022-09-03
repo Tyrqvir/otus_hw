@@ -5,12 +5,13 @@ import (
 	"io"
 	"os"
 
-	pb "github.com/cheggaaa/pb/v3"
+	"github.com/cheggaaa/pb/v3"
 )
 
 var (
 	ErrUnsupportedFile       = errors.New("unsupported file")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
+	ErrSeekFile              = errors.New("can't seek")
 	size                     int64
 )
 
@@ -21,7 +22,10 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 
 	if offset != 0 {
-		source.Seek(offset, io.SeekStart)
+		_, err := source.Seek(offset, io.SeekStart)
+		if err != nil {
+			return ErrSeekFile
+		}
 	}
 
 	defer source.Close()
