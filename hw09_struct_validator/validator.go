@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/Tyrqvir/otus_hw/hw09_struct_validator/constraints"
 	"github.com/Tyrqvir/otus_hw/hw09_struct_validator/field"
@@ -11,6 +12,7 @@ import (
 )
 
 var ValidationErrorsInstance validationerror.ValidationErrors
+var mutex = &sync.Mutex{}
 
 func Validate(v interface{}) error {
 	valueOf := reflect.ValueOf(v)
@@ -48,6 +50,8 @@ func validate(valueOf reflect.Value) (bool, error) {
 	}
 
 	if len(validationErrors) != 0 {
+		mutex.Lock()
+		defer mutex.Unlock()
 		ValidationErrorsInstance = validationErrors
 		return false, ValidationErrorsInstance
 	}
