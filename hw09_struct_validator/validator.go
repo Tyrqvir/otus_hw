@@ -11,8 +11,10 @@ import (
 	"github.com/Tyrqvir/otus_hw/hw09_struct_validator/validationerror"
 )
 
-var ValidationErrorsInstance validationerror.ValidationErrors
-var mutex = &sync.Mutex{}
+var (
+	ValidationErrorsInstance validationerror.ValidationErrors
+	mutex                    = &sync.Mutex{}
+)
 
 func Validate(v interface{}) error {
 	valueOf := reflect.ValueOf(v)

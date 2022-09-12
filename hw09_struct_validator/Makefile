@@ -5,6 +5,7 @@ help:
 pre-commit: ## Pre commit handles
 	go mod tidy
 	golangci-lint run ./...
+	gofumpt -l -w .
 .PHONY: pre-commit
 
 test: ## Run tests with cover
