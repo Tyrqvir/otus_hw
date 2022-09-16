@@ -2,10 +2,10 @@ goos: darwin
 goarch: amd64
 pkg: github.com/Tyrqvir/otus_hw/hw10_program_optimization
 cpu: Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz
-BenchmarkGetDomainStat-8   	       8	 136681354 ns/op	 9942337 B/op	   34331 allocs/op
-BenchmarkGetDomainStat-8   	       8	 136567734 ns/op	 9942022 B/op	   34334 allocs/op
-BenchmarkGetDomainStat-8   	       8	 136294783 ns/op	 9941243 B/op	   34328 allocs/op
-BenchmarkGetDomainStat-8   	       8	 135862205 ns/op	 9942068 B/op	   34331 allocs/op
-BenchmarkGetDomainStat-8   	       8	 135667503 ns/op	 9941593 B/op	   34330 allocs/op
+BenchmarkGetDomainStat-8   	       8	 131121330 ns/op	 3562915 B/op	   34308 allocs/op
+BenchmarkGetDomainStat-8   	       8	 131115414 ns/op	 3563050 B/op	   34308 allocs/op
+BenchmarkGetDomainStat-8   	       8	 131261635 ns/op	 3563178 B/op	   34309 allocs/op
+BenchmarkGetDomainStat-8   	       8	 130666233 ns/op	 3563143 B/op	   34309 allocs/op
+BenchmarkGetDomainStat-8   	       8	 130996762 ns/op	 3563133 B/op	   34309 allocs/op
 PASS
-ok  	github.com/Tyrqvir/otus_hw/hw10_program_optimization	7.819s
+ok  	github.com/Tyrqvir/otus_hw/hw10_program_optimization	6.491s

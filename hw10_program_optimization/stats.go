@@ -30,18 +30,18 @@ var userPool = sync.Pool{
 }
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r, domain)
+	domainStat, err := getDomainStat(r, domain)
 	if err != nil {
 		return nil, fmt.Errorf("get users error: %w", err)
 	}
 
-	return countDomains(u)
+	return domainStat, nil
 }
 
-type users []User
-
-func getUsers(r io.Reader, domain string) (result users, err error) {
+func getDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	scanner := bufio.NewScanner(r)
+
+	result := make(DomainStat)
 
 	for scanner.Scan() {
 		if !bytes.Contains(scanner.Bytes(), []byte("."+domain)) {
@@ -49,31 +49,21 @@ func getUsers(r io.Reader, domain string) (result users, err error) {
 		}
 
 		user := *userPool.Get().(*User)
-		userPool.Put(&user)
 
-		if err = json.Unmarshal(scanner.Bytes(), &user); err != nil {
-			return
+		if err := json.Unmarshal(scanner.Bytes(), &user); err != nil {
+			return nil, err
 		}
 
-		result = append(result, user)
-	}
+		userPool.Put(&user)
 
-	return
-}
-
-func countDomains(u users) (DomainStat, error) {
-	result := make(DomainStat, len(u))
-
-	for _, user := range u {
 		at := strings.LastIndex(user.Email, "@")
 
 		if at == 0 {
 			continue
 		}
 
-		nextDomainLvl := strings.ToLower(user.Email[at+1:])
-
-		result[nextDomainLvl]++
+		result[strings.ToLower(user.Email[at+1:])]++
 	}
+
 	return result, nil
 }

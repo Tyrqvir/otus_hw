@@ -41,62 +41,7 @@ func TestGetDomainStat(t *testing.T) {
 	})
 }
 
-func Test_countDomains(t *testing.T) {
-	type args struct {
-		u users
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    DomainStat
-		wantErr bool
-	}{
-		{
-			name: "Test count domains",
-			args: args{
-				u: []User{
-					{
-						ID:       0,
-						Name:     "",
-						Username: "",
-						Email:    "test1@biz.com",
-						Phone:    "",
-						Password: "",
-						Address:  "",
-					},
-					{
-						ID:       0,
-						Name:     "",
-						Username: "",
-						Email:    "test1@bit.com",
-						Phone:    "",
-						Password: "",
-						Address:  "",
-					},
-				},
-			},
-			want: DomainStat{
-				"biz.com": 1,
-				"bit.com": 1,
-			},
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := countDomains(tt.args.u)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("countDomains() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("countDomains() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_getUsers(t *testing.T) {
+func Test_getDomainStat(t *testing.T) {
 	type args struct {
 		r      io.Reader
 		domain string
@@ -104,7 +49,7 @@ func Test_getUsers(t *testing.T) {
 	tests := []struct {
 		name       string
 		args       args
-		wantResult users
+		wantResult DomainStat
 		wantErr    bool
 	}{
 		{
@@ -113,34 +58,9 @@ func Test_getUsers(t *testing.T) {
 				r:      bytes.NewBufferString(data),
 				domain: "com",
 			},
-			wantResult: []User{
-				{
-					ID:       2,
-					Name:     "Jesse Vasquez",
-					Username: "qRichardson",
-					Email:    "mLynch@broWsecat.com",
-					Phone:    "9-373-949-64-00",
-					Password: "SiZLeNSGn",
-					Address:  "Fulton Hill 80",
-				},
-				{
-					ID:       3,
-					Name:     "Clarence Olson",
-					Username: "RachelAdams",
-					Email:    "RoseSmith@Browsecat.com",
-					Phone:    "988-48-97",
-					Password: "71kuz3gA5w",
-					Address:  "Monterey Park 39",
-				},
-				{
-					ID:       5,
-					Name:     "Janice Rose",
-					Username: "KeithHart",
-					Email:    "nulla@Linktype.com",
-					Phone:    "146-91-01",
-					Password: "acSBF5",
-					Address:  "Russell Trail 61",
-				},
+			wantResult: DomainStat{
+				"browsecat.com": 2,
+				"linktype.com":  1,
 			},
 			wantErr: false,
 		},
@@ -150,23 +70,15 @@ func Test_getUsers(t *testing.T) {
 				r:      bytes.NewBufferString(data),
 				domain: "gov",
 			},
-			wantResult: []User{
-				{
-					ID:       1,
-					Name:     "Howard Mendoza",
-					Username: "0Oliver",
-					Email:    "aliquid_qui_ea@Browsedrive.gov",
-					Phone:    "6-866-899-36-79",
-					Password: "InAQJvsq",
-					Address:  "Blackbird Place 25",
-				},
+			wantResult: DomainStat{
+				"browsedrive.gov": 1,
 			},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResult, err := getUsers(tt.args.r, tt.args.domain)
+			gotResult, err := getDomainStat(tt.args.r, tt.args.domain)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getUsers() error = %v, wantErr %v", err, tt.wantErr)
 				return
