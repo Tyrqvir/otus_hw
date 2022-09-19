@@ -43,9 +43,12 @@ func main() {
 	address := net.JoinHostPort(options.Args.Host, options.Args.Port)
 	ctx, cancel := context.WithCancel(context.Background())
 
-	client := NewTelnetClient(address, options.Timeout, os.Stdin, os.Stdout)
+	client, err := NewTelnetClient(address, options.Timeout, os.Stdin, os.Stdout)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	err := client.Connect()
+	err = client.Connect()
 	if err != nil {
 		log.Fatal(err)
 	}

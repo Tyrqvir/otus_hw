@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -69,7 +70,14 @@ func (client *client) Receive() error {
 	return nil
 }
 
-func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
+func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) (TelnetClient, error) {
+	if in == nil {
+		return nil, errors.New("reader not defined")
+	}
+
+	if out == nil {
+		return nil, errors.New("writer not defined")
+	}
 	// Place your code here.
 	return &client{
 		address: address,
@@ -77,5 +85,5 @@ func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, ou
 		in:      in,
 		out:     out,
 		network: "tcp",
-	}
+	}, nil
 }
