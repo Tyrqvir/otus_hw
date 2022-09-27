@@ -14,12 +14,13 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
+type Args struct {
+	Host, Port string `positional-args:"yes" required:"yes"`
+}
+
 type Options struct {
 	Timeout time.Duration `short:"t" long:"timeout" description:"Timeout" default:"10s" required:"yes"`
-	Args    struct {
-		Host string
-		Port string
-	} `positional-args:"yes" required:"yes"`
+	Args    Args
 }
 
 var options Options

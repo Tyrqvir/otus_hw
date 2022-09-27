@@ -39,7 +39,11 @@ func (client *client) Connect() error {
 }
 
 func (client *client) Close() error {
-	err := client.connection.Close()
+	conn := client.connection
+	if conn == nil {
+		return fmt.Errorf("can't run close method on nil")
+	}
+	err := conn.Close()
 	if err != nil {
 		return fmt.Errorf("error on connection close: %w", err)
 	}
