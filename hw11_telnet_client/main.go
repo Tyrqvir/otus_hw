@@ -15,13 +15,13 @@ import (
 )
 
 type Args struct {
-	Host string
-	Port string
+	Host string `positional-args:"yes" required:"yes"`
+	Port string `positional-args:"yes" required:"yes"`
 }
 
 type Options struct {
 	Timeout time.Duration `short:"t" long:"timeout" description:"Timeout" default:"10s" required:"yes"`
-	Args    Args          `positional-args:"yes" required:"yes"`
+	Args    Args
 }
 
 var options Options
