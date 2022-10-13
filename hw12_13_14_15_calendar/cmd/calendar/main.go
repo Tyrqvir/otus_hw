@@ -3,16 +3,20 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/logger/zap"
+	internalhttp "github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/server/http"
+	storageFactory "github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/storage/factory"
 )
+
+const versionArgKey = "version"
 
 var configFile string
 
@@ -23,18 +27,28 @@ func init() {
 func main() {
 	flag.Parse()
 
-	if flag.Arg(0) == "version" {
+	if flag.Arg(0) == versionArgKey {
 		printVersion()
 		return
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
+	fmt.Println(configFile)
 
-	storage := memorystorage.New()
+	cfg, err := config.NewConfig(configFile)
+	if err != nil {
+		panic(err)
+	}
+
+	logg := zap.New(cfg.Logger.Level)
+
+	storage, err := storageFactory.MakeStorage(cfg)
+	if err != nil {
+		panic(err)
+	}
+
 	calendar := app.New(logg, storage)
 
-	server := internalhttp.NewServer(logg, calendar)
+	server := internalhttp.NewServer(calendar, cfg)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)

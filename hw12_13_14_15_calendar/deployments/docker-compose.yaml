@@ -1,1 +1,32 @@
-version: "3"
+version: '3.9'
+
+services:
+  calendar:
+    build:
+      context: ./..
+      dockerfile: ./build/Dockerfile
+    container_name: calendar
+    ports:
+      - ${HTTP_PORT}:${HTTP_PORT}
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:${DB_VERSION}
+    container_name: db
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d calendar" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - ./migrations/schema:/docker-entrypoint-initdb.d
