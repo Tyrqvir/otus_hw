@@ -1,4 +1,4 @@
-package internalhttp
+package rest
 
 import (
 	"context"
@@ -6,24 +6,22 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/pkg/errors"
 )
 
 type Server struct {
-	app    *app.App
-	server *http.Server
+	httpServer http.Server
+	logger     logger.ILogger
 }
 
-func NewServer(app *app.App, config *config.Config) *Server {
-	handler := decorateHandler(app.GetLogger())
-
+func New(h http.Handler, logger logger.ILogger, config *config.Config) *Server {
 	return &Server{
-		app: app,
-		server: &http.Server{
+		logger: logger,
+		httpServer: http.Server{
 			Addr:              net.JoinHostPort(config.HTTP.Host, config.HTTP.Port),
-			Handler:           handler,
+			Handler:           h,
 			ReadTimeout:       config.HTTP.ReadTimeout,
 			WriteTimeout:      config.HTTP.WriteTimeout,
 			ReadHeaderTimeout: config.HTTP.ReadHeaderTimeout,
@@ -32,15 +30,15 @@ func NewServer(app *app.App, config *config.Config) *Server {
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	s.app.GetLogger().Info("Start server...")
+	s.logger.Info("Start http server...")
 
-	err := s.server.ListenAndServe()
+	err := s.httpServer.ListenAndServe()
 	if err != nil {
 		if errors.Is(err, http.ErrServerClosed) {
 			return nil
 		}
 
-		return fmt.Errorf("can't start server, %w", err)
+		return fmt.Errorf("can't start http server, %w", err)
 	}
 
 	<-ctx.Done()
@@ -48,10 +46,10 @@ func (s *Server) Start(ctx context.Context) error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	s.app.GetLogger().Info("Stop server...")
+	s.logger.Info("stop http server...")
 
-	if err := s.server.Shutdown(ctx); err != nil {
-		return fmt.Errorf("can't shutdown server, %w", err)
+	if err := s.httpServer.Shutdown(ctx); err != nil {
+		return fmt.Errorf("can't shutdown http server, %w", err)
 	}
 	return nil
 }

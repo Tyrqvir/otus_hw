@@ -1,6 +1,7 @@
 package memorystorage
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -8,24 +9,29 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const dummyID = "dummy id"
+const (
+	dummyID = model.EventID(1)
+	ownerID = model.OwnerID(1)
+)
+
+var ctx = context.Background()
 
 func dummyEvent() model.Event {
 	return model.Event{
 		ID:                 dummyID,
 		Title:              "dummy title",
-		Start:              time.Now().Unix(),
-		End:                time.Now().AddDate(0, 1, 0).Unix(),
+		Start:              time.Now(),
+		End:                time.Now(),
 		Description:        "dummy description",
-		OwnerID:            "test_owner_id",
-		NotificationBefore: 0,
+		OwnerID:            ownerID,
+		NotificationBefore: time.Now(),
 	}
 }
 
 func dummyStorage() *Storage {
 	event := dummyEvent()
 	dummyStorage := New()
-	err := dummyStorage.AddEvent(event)
+	_, err := dummyStorage.CreateEvent(ctx, event)
 	if err != nil {
 		panic("Can't create dummy storage")
 	}
@@ -37,10 +43,11 @@ func TestStorage(t *testing.T) {
 	t.Run("test add event", func(t *testing.T) {
 		storage := New()
 		event := model.Event{}
-		err := storage.AddEvent(event)
+		id, err := storage.CreateEvent(ctx, event)
 		require.NoError(t, err)
 		require.Nil(t, err)
 		require.Len(t, storage.store, 1)
+		require.Equal(t, id, dummyID)
 	})
 
 	t.Run("test update event", func(t *testing.T) {
@@ -52,10 +59,11 @@ func TestStorage(t *testing.T) {
 		event.Title = "Updated title"
 		event.Description = "Updated description"
 
-		err := storage.UpdateEvent(event)
+		_, err := storage.UpdateEvent(ctx, event)
 		require.NoError(t, err)
 		require.Nil(t, err)
 		require.Len(t, storage.store, 1)
+		require.Equal(t, storage.store[dummyID].ID, dummyID)
 
 		require.Equal(t, "Updated description", storage.store[dummyID].Description)
 		require.Equal(t, "Updated title", storage.store[dummyID].Title)
@@ -67,7 +75,7 @@ func TestStorage(t *testing.T) {
 
 		event := storage.store[dummyID]
 
-		err := storage.DeleteEvent(event.ID)
+		_, err := storage.DeleteEvent(ctx, event.ID)
 		require.NoError(t, err)
 		require.Nil(t, err)
 
@@ -76,36 +84,41 @@ func TestStorage(t *testing.T) {
 
 	t.Run("test lists", func(t *testing.T) {
 		storage := New()
-		require.Len(t, storage.store, 0)
-
-		err := storage.AddEvent(dummyEvent())
-		require.NoError(t, err)
-
 		now := time.Now()
+		event1 := model.Event{ID: 1, Start: now.Add(-3 * time.Minute), End: now.Add(4 * time.Minute), OwnerID: ownerID}
+		event2 := model.Event{ID: 2, Start: now.Add(-2 * time.Minute), End: now.Add(10 * time.Minute), OwnerID: ownerID}
+		_, _ = storage.CreateEvent(ctx, event1)
+		_, _ = storage.CreateEvent(ctx, event2)
+		require.Len(t, storage.store, 2)
 
-		daily, err := storage.DailyEvents(now)
+		list, err := storage.EventsByPeriodForOwner(ctx, ownerID, now.Add(-5*time.Minute), now.Add(5*time.Minute))
 		require.NoError(t, err)
-		require.Len(t, daily, 1)
-
-		weekly, err := storage.DailyEvents(now)
-		require.NoError(t, err)
-		require.Len(t, weekly, 1)
-
-		monthly, err := storage.DailyEvents(now)
-		require.NoError(t, err)
-		require.Len(t, monthly, 1)
+		require.Len(t, list, 1)
 	})
 
-	t.Run("test add 2 same events", func(t *testing.T) {
+	t.Run("test add 2 with same ID but different start date", func(t *testing.T) {
 		storage := New()
-		event1 := model.Event{ID: "event1"}
-		event2 := model.Event{ID: "event2"}
-		err := storage.AddEvent(event1)
+		currentTime := time.Now()
+		event1 := model.Event{ID: 1, Start: currentTime}
+		event2 := model.Event{ID: 1, Start: currentTime.Add(5 * time.Minute)}
+		_, err := storage.CreateEvent(ctx, event1)
 		require.NoError(t, err)
 
-		err = storage.AddEvent(event2)
+		_, err = storage.CreateEvent(ctx, event2)
 		require.NoError(t, err)
 
 		require.Len(t, storage.store, 2)
+	})
+
+	t.Run("test add 2 with same Date and different ID", func(t *testing.T) {
+		storage := New()
+		currentTime := time.Now()
+		event1 := model.Event{ID: 1, Start: currentTime}
+		event2 := model.Event{ID: 2, Start: currentTime}
+		_, err := storage.CreateEvent(ctx, event1)
+		require.NoError(t, err)
+
+		_, err = storage.CreateEvent(ctx, event2)
+		require.Error(t, err)
 	})
 }

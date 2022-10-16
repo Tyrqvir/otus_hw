@@ -1,11 +1,18 @@
 package model
 
+import "time"
+
+type (
+	EventID int64
+	OwnerID int64
+)
+
 type Event struct {
-	ID                 string
+	ID                 EventID
 	Title              string
-	Start              int64
-	End                int64
+	Start              time.Time
+	End                time.Time
 	Description        string
-	OwnerID            string
-	NotificationBefore int64
+	OwnerID            OwnerID
+	NotificationBefore time.Time
 }

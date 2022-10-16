@@ -1,4 +1,4 @@
-package zap
+package logger
 
 import (
 	"fmt"
@@ -15,8 +15,20 @@ const (
 	levelError = "error"
 )
 
+type ILogger interface {
+	Info(string, ...interface{})
+	Error(string, ...interface{})
+	Debug(string, ...interface{})
+	Warn(string, ...interface{})
+	GetInstance() *zap.Logger
+}
+
 type Logger struct {
-	logger *zap.Logger
+	instance *zap.Logger
+}
+
+func (l *Logger) GetInstance() *zap.Logger {
+	return l.instance
 }
 
 func getLoggerLevel(level string) zapcore.Level {
@@ -55,7 +67,7 @@ func New(level string) *Logger {
 	defer func(logger *zap.Logger) {
 		err := logger.Sync()
 		if err != nil {
-			fmt.Println("can't flush logger")
+			fmt.Println("log: could not sync", err)
 		}
 	}(logger)
 
@@ -63,17 +75,17 @@ func New(level string) *Logger {
 }
 
 func (l *Logger) Info(s string, i ...interface{}) {
-	l.logger.Sugar().Infow(s, i...)
+	l.instance.Sugar().Infow(s, i...)
 }
 
 func (l *Logger) Error(s string, i ...interface{}) {
-	l.logger.Sugar().Errorw(s, i...)
+	l.instance.Sugar().Errorw(s, i...)
 }
 
 func (l *Logger) Debug(s string, i ...interface{}) {
-	l.logger.Sugar().Debugw(s, i...)
+	l.instance.Sugar().Debugw(s, i...)
 }
 
 func (l *Logger) Warn(s string, i ...interface{}) {
-	l.logger.Sugar().Warnw(s, i...)
+	l.instance.Sugar().Warnw(s, i...)
 }

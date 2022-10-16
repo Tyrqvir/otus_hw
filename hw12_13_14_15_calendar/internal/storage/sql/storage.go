@@ -1,6 +1,7 @@
 package sqlstorage
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -16,13 +17,13 @@ type Storage struct {
 	db *sqlx.DB
 }
 
-func (s *Storage) AddEvent(e model.Event) error {
-	_, err := s.db.NamedExec(
+func (s *Storage) CreateEvent(_ context.Context, event model.Event) (model.EventID, error) {
+	result, err := s.db.NamedExec(
 		`INSERT INTO events (
                     id,
                     title,
                     start,
-                    finish,
+                    end,
                     description,
                     owner_id,
                     notification_before
@@ -35,85 +36,61 @@ func (s *Storage) AddEvent(e model.Event) error {
 				        :description,
 				        :owner_id,
 				        :notification_before
-				        )`, &e)
+				        )`, &event)
+	if err != nil {
+		return 0, fmt.Errorf("%v, %w", storage.ErrCantAddEvent, err)
+	}
 
-	return fmt.Errorf("%v, %w", storage.ErrCantAddEvent, err)
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("%v, %w", storage.ErrNotFound, err)
+	}
+
+	return model.EventID(id), nil
 }
 
-func (s *Storage) UpdateEvent(e model.Event) error {
+func (s *Storage) UpdateEvent(_ context.Context, event model.Event) (int64, error) {
 	_, err := s.db.NamedExec(
 		`UPDATE events
 				SET
 				    title=:title,
-				    start=:date,
-				    finish=:end,
+				    start=:start,
+				    end=:end,
 				    description=:description,
 				    notification_before=:notification_before
               	WHERE
-              	    id = :id`, &e)
+              	    id = :id`, &event)
 
-	return fmt.Errorf("%v, %w", storage.ErrCantUpdateEvent, err)
+	return 1, fmt.Errorf("%v, %w", storage.ErrCantUpdateEvent, err)
 }
 
-func (s *Storage) DeleteEvent(eID string) error {
-	res, err := s.db.Exec("DELETE FROM events WHERE id=$1", eID)
+func (s *Storage) DeleteEvent(_ context.Context, eventID model.EventID) (int64, error) {
+	result, err := s.db.Exec("DELETE FROM events WHERE id=$1", eventID)
 
-	if count, err := res.RowsAffected(); count == 0 {
+	if count, err := result.RowsAffected(); count == 0 {
 		if err != nil {
-			return fmt.Errorf("can't get rows, %w", sql.ErrNoRows)
+			return 0, fmt.Errorf("can't get rows, %w", sql.ErrNoRows)
 		}
 
-		return fmt.Errorf("events: %w", storage.ErrNotFound)
+		return 0, fmt.Errorf("events: %w", storage.ErrNotFound)
 	}
 
-	return fmt.Errorf("%v, %w", storage.ErrCantDeleteEvent, err)
+	return 1, fmt.Errorf("%v, %w", storage.ErrCantDeleteEvent, err)
 }
 
-func (s *Storage) DailyEvents(date time.Time) ([]model.Event, error) {
-	start := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
-	from := start.Unix()
-	to := start.AddDate(0, 0, 1).Unix()
-
-	result, err := s.eventsByDate(from, to)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (s *Storage) WeeklyEvents(date time.Time) ([]model.Event, error) {
-	offset := (int(time.Monday) - int(date.Weekday()) - 7) % 7
-	week := date.Add(time.Duration(offset*24) * time.Hour)
-	start := time.Date(week.Year(), week.Month(), week.Day(), 0, 0, 0, 0, week.Location())
-	from := start.Unix()
-	to := start.AddDate(0, 0, 7).Unix()
-
-	result, err := s.eventsByDate(from, to)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (s *Storage) MonthEvents(date time.Time) ([]model.Event, error) {
-	current := time.Date(date.Year(), date.Month(), 0, 0, 0, 0, 0, date.Location())
-	from := current.Unix()
-	to := current.AddDate(0, 1, 0).Unix()
-
-	result, err := s.eventsByDate(from, to)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (s *Storage) eventsByDate(from int64, to int64) ([]model.Event, error) {
+func (s *Storage) EventsByPeriodForOwner(
+	_ context.Context,
+	ownerID model.OwnerID,
+	start, end time.Time,
+) ([]model.Event, error) {
 	var result []model.Event
 
-	err := s.db.Select(&result, "SELECT * FROM events WHERE start BETWEEN $1 AND $2", from, to)
+	err := s.db.Select(
+		&result,
+		`SELECT id, title, start, end, owner_id, description
+				FROM events
+				WHERE owner_id = $1 AND start BETWEEN $2 AND $3`,
+		ownerID, start, end)
 	if err != nil {
 		return nil, err
 	}

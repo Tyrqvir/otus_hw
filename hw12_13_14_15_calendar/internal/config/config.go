@@ -11,6 +11,7 @@ type Config struct {
 	Logger LoggerConf
 	DB     DBConf
 	HTTP   HTTPConf
+	GRPS   HTTPConf
 }
 
 type LoggerConf struct {
@@ -30,11 +31,16 @@ type HTTPConf struct {
 	ReadHeaderTimeout time.Duration
 }
 
+type GRPSConf struct {
+	Host string
+	Port string
+}
+
 func NewConfig(configFile string) (*Config, error) {
 	viper.SetConfigFile(configFile)
 
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("failed to read config file: %w", err)
+		return nil, fmt.Errorf("%v: %w", ErrFailedReadConfigFile, err)
 	}
 
 	return &Config{
@@ -51,6 +57,10 @@ func NewConfig(configFile string) (*Config, error) {
 			ReadTimeout:       viper.GetDuration("http.read_timeout"),
 			WriteTimeout:      viper.GetDuration("http.write_timeout"),
 			ReadHeaderTimeout: viper.GetDuration("http.read_header_timeout"),
+		},
+		HTTPConf{
+			Host: viper.GetString("grps.host"),
+			Port: viper.GetString("grps.port"),
 		},
 	}, nil
 }

@@ -1,5 +1,5 @@
-BIN := "./bin/calendar"
-DOCKER_IMG="calendar:develop"
+CALENDAR_BIN := "./bin/calendar"
+CALENDAR_DOCKER_IMG="calendar:develop"
 DOCKER_COMPOSE_FOLDER="./deployments"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
@@ -12,26 +12,35 @@ help:
 up:
 	cd $(DOCKER_COMPOSE_FOLDER) && docker-compose up
 
+rebuild:
+	cd $(DOCKER_COMPOSE_FOLDER) && docker-compose up --build
+
 down:
-	cd $(DOCKER_COMPOSE_FOLDER) && docker-compose down
+	cd $(DOCKER_COMPOSE_FOLDER) && docker-compose down --remove-orphans
 
-build:
-	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+build-calendar:
+	go build -v -o $(CALENDAR_BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
-run: build
-	$(BIN) -config ./configs/config.toml
+run: run-calendar
 
-build-img:
+run-calendar: build-calendar
+	$(CALENDAR_BIN) -config ./configs/config.toml
+
+build: build-calendar
+
+build-img: build-calendar-img
+
+build-calendar-img:
 	docker build \
 		--build-arg=LDFLAGS="$(LDFLAGS)" \
-		-t $(DOCKER_IMG) \
+		-t $(CALENDAR_DOCKER_IMG) \
 		-f build/Dockerfile .
 
-run-img: build-img
-	docker run $(DOCKER_IMG)
+run-img: build-calendar-img
+	docker run $(CALENDAR_DOCKER_IMG)
 
-version: build
-	$(BIN) version
+version: build-calendar
+	$(CALENDAR_BIN) version
 
 test:
 	go test -race ./internal/... ./pkg/...
@@ -44,8 +53,18 @@ lint: install-lint-deps
 
 pre-commit: ## Pre commit handles
 	go mod tidy
-	gofumpt -l -w .
+	go mod verify
+	gofmt -w -s -d .
 	golangci-lint run ./...
 .PHONY: pre-commit
+
+generate: ## Run go generate
+	go generate ./...
+
+test-packages: ## Test all packages
+	go test all
+
+wire: ## Run DI generating
+	wire cmd/calendar/wire.go
 
 .PHONY: build run build-img run-img version test lint

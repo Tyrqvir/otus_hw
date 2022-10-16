@@ -1,89 +1,67 @@
 package memorystorage
 
 import (
+	"context"
 	"sync"
 	"time"
 
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/storage"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/storage/model"
 )
 
 type Storage struct {
-	store map[string]model.Event
-	mu    sync.RWMutex
+	store         map[model.EventID]model.Event
+	mu            sync.RWMutex
+	incrementedID model.EventID
 }
 
-func (s *Storage) AddEvent(event model.Event) error {
+func (s *Storage) CreateEvent(_ context.Context, event model.Event) (model.EventID, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for _, storeEvent := range s.store {
+		if storeEvent.Start.Equal(event.Start) && storeEvent.OwnerID == event.OwnerID {
+			return 0, storage.ErrDateBusy
+		}
+	}
+
+	s.incrementedID++
+
+	s.store[s.incrementedID] = event
+
+	return s.incrementedID, nil
+}
+
+func (s *Storage) UpdateEvent(_ context.Context, event model.Event) (int64, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.store[event.ID] = event
 
-	return nil
+	return 1, nil
 }
 
-func (s *Storage) UpdateEvent(event model.Event) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	s.store[event.ID] = event
-
-	return nil
-}
-
-func (s *Storage) DeleteEvent(eventID string) error {
+func (s *Storage) DeleteEvent(_ context.Context, eventID model.EventID) (int64, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	delete(s.store, eventID)
 
-	return nil
+	return 1, nil
 }
 
-func (s *Storage) DailyEvents(date time.Time) ([]model.Event, error) {
+func (s *Storage) EventsByPeriodForOwner(
+	_ context.Context,
+	ownerID model.OwnerID,
+	start, end time.Time,
+) ([]model.Event, error) {
 	var events []model.Event
 
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	for _, event := range s.store {
-		eventDate := time.Unix(event.Start, 0)
-
-		if eventDate.Year() == date.Year() && eventDate.Month() == date.Month() && eventDate.Day() == date.Day() {
-			events = append(events, event)
-		}
-	}
-
-	return events, nil
-}
-
-func (s *Storage) WeeklyEvents(date time.Time) ([]model.Event, error) {
-	var events []model.Event
-
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	for _, event := range s.store {
-		eventDate := time.Unix(event.Start, 0)
-		eventYear, eventWeek := eventDate.ISOWeek()
-		currentYear, currentWeek := date.ISOWeek()
-
-		if eventYear == currentYear && eventWeek == currentWeek {
-			events = append(events, event)
-		}
-	}
-
-	return events, nil
-}
-
-func (s *Storage) MonthEvents(date time.Time) ([]model.Event, error) {
-	var events []model.Event
-
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	for _, event := range s.store {
-		eventDate := time.Unix(event.Start, 0)
-		if eventDate.Year() == date.Year() && eventDate.Month() == date.Month() {
+		if ownerID == event.OwnerID && start.Before(event.Start) && end.After(event.End) {
 			events = append(events, event)
 		}
 	}
@@ -92,5 +70,5 @@ func (s *Storage) MonthEvents(date time.Time) ([]model.Event, error) {
 }
 
 func New() *Storage {
-	return &Storage{store: map[string]model.Event{}}
+	return &Storage{store: map[model.EventID]model.Event{}}
 }

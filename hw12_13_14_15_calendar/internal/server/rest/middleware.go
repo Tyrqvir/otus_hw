@@ -1,19 +1,12 @@
-package internalhttp
+package rest
 
 import (
 	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/logger"
 )
-
-func headersMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "application/json")
-		next.ServeHTTP(w, r)
-	}
-}
 
 type responseWriterDecorator struct {
 	http.ResponseWriter
@@ -26,12 +19,11 @@ func (rd *responseWriterDecorator) WriteHeader(status int) {
 	rd.ResponseWriter.WriteHeader(status)
 }
 
-func loggingMiddleware(next http.HandlerFunc, logger app.Logger) http.HandlerFunc {
-	start := time.Now()
-
-	return func(w http.ResponseWriter, r *http.Request) {
+func loggingMiddleware(next http.Handler, logger logger.ILogger) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		wd := &responseWriterDecorator{ResponseWriter: w}
 
+		start := time.Now()
 		next.ServeHTTP(wd, r)
 
 		logger.Debug(fmt.Sprintf("%s [%s] %s %s %s %d %d \"%s\"",
@@ -43,5 +35,5 @@ func loggingMiddleware(next http.HandlerFunc, logger app.Logger) http.HandlerFun
 			wd.status,
 			time.Since(start).Milliseconds(),
 			r.UserAgent()))
-	}
+	})
 }
