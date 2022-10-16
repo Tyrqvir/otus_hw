@@ -7,7 +7,7 @@ import (
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/api/eventpb"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	"google.golang.org/grpc"

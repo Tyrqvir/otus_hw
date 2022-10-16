@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/api/eventpb"
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/mocks"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/storage/model"
-	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/mocks"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

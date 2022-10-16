@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-//go:generate mockery --name IEventCrud --dir ./ --output ./../../../mocks
+//go:generate mockery --name IEventCrud --dir ./ --output ./../../../internal/mocks
 type (
 	IEventCrud interface {
 		CreateEvent(ctx context.Context, event model.Event) (int64, error)

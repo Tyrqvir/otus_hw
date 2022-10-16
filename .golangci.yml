@@ -1,6 +1,8 @@
 run:
   go: '1.17'
   tests: true
+  skip-dirs:
+    - internal/mocks
   build-tags:
     - bench
     - !bench
