@@ -59,12 +59,18 @@ build-calendar-img: ## build calendar image
 build-scheduler-img:  ## build scheduler image
 	docker build \
 		--build-arg=LDFLAGS="$(LDFLAGS)" \
+		--build-arg=BIN_FILE="/opt/calendar/scheduler-app" \
+		--build-arg=APP_FOLDER="calendar_scheduler" \
+		--build-arg=CONFIG_FILE_EXTERNAL="configs/scheduler_config.toml" \
 		-t $(SCHEDULER_DOCKER_IMG) \
 		-f build/Dockerfile .
 
 build-sender-img: ## build sender image
 	docker build \
 		--build-arg=LDFLAGS="$(LDFLAGS)" \
+		--build-arg=BIN_FILE="/opt/calendar/sender-app" \
+		--build-arg=APP_FOLDER="calendar_sender" \
+		--build-arg=CONFIG_FILE_EXTERNAL="configs/sender_config.toml" \
 		-t $(SENDER_DOCKER_IMG) \
 		-f build/Dockerfile .
 
