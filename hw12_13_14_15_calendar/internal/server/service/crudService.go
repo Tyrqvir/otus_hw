@@ -50,7 +50,7 @@ func (cs *CalendarServer) CreateEvent(
 		return nil, err
 	}
 
-	return &eventpb.CreateEventResponse{InsertedUID: uuid}, nil
+	return &eventpb.CreateEventResponse{InsertedUid: uuid}, nil
 }
 
 func (cs *CalendarServer) UpdateEvent(

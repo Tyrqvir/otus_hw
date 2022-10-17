@@ -169,7 +169,7 @@ type CreateEventResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	InsertedUID int64 `protobuf:"varint,1,opt,name=inserted_uid,json=insertedUid,proto3" json:"inserted_uid,omitempty"`
+	InsertedUid int64 `protobuf:"varint,1,opt,name=inserted_uid,json=insertedUid,proto3" json:"inserted_uid,omitempty"`
 }
 
 func (x *CreateEventResponse) Reset() {
@@ -206,7 +206,7 @@ func (*CreateEventResponse) Descriptor() ([]byte, []int) {
 
 func (x *CreateEventResponse) GetInsertedUid() int64 {
 	if x != nil {
-		return x.InsertedUID
+		return x.InsertedUid
 	}
 	return 0
 }

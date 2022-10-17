@@ -26,7 +26,7 @@ func TestCalendarServer_CreateEvent(t *testing.T) {
 		response, err := server.CreateEvent(ctx, &eventpb.CreateEventRequest{Event: event})
 
 		require.NoError(t, err)
-		require.Equal(t, insertedUID, response.InsertedUID)
+		require.Equal(t, insertedUID, response.InsertedUid)
 	})
 
 	t.Run("error", func(t *testing.T) {
