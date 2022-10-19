@@ -11,7 +11,7 @@ type Config struct {
 	Logger LoggerConf
 	DB     DBConf
 	HTTP   HTTPConf
-	GRPS   HTTPConf
+	GRPS   GRPSConf
 }
 
 type LoggerConf struct {
@@ -58,7 +58,7 @@ func NewConfig(configFile string) (*Config, error) {
 			WriteTimeout:      viper.GetDuration("http.write_timeout"),
 			ReadHeaderTimeout: viper.GetDuration("http.read_header_timeout"),
 		},
-		HTTPConf{
+		GRPSConf{
 			Host: viper.GetString("grps.host"),
 			Port: viper.GetString("grps.port"),
 		},
