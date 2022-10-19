@@ -1,8 +1,10 @@
 package logger
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"syscall"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -66,8 +68,8 @@ func New(level string) *Logger {
 	logger := zap.New(core)
 	defer func(logger *zap.Logger) {
 		err := logger.Sync()
-		if err != nil {
-			fmt.Println("log: could not sync", err)
+		if err != nil && !errors.Is(err, syscall.ENOTTY) {
+			fmt.Println("could not sync", err)
 		}
 	}(logger)
 

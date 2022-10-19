@@ -9,13 +9,39 @@ services:
         BIN_FILE: "/opt/calendar/calendar-app"
         APP_FOLDER: "calendar"
         CONFIG_FILE_EXTERNAL: "./configs/calendar_config.toml"
+    restart: unless-stopped
     container_name: calendar
     ports:
       - ${HTTP_PORT}:${HTTP_PORT}
       - ${GRPS_PORT}:${GRPS_PORT}
     depends_on:
       - db
-    restart: unless-stopped
+
+#  calendar_scheduler:
+#    build:
+#      context: ./..
+#      dockerfile: ./build/Dockerfile
+#      args:
+#        BIN_FILE: "/opt/calendar/scheduler-app"
+#        APP_FOLDER: "calendar_scheduler"
+#        CONFIG_FILE_EXTERNAL: "./configs/scheduler_config.toml"
+#    restart: unless-stopped
+#    depends_on:
+#      - db
+#      - broker
+#
+#  calendar_sender:
+#    build:
+#      context: ./..
+#      dockerfile: ./build/Dockerfile
+#      args:
+#        BIN_FILE: "/opt/calendar/sender-app"
+#        APP_FOLDER: "calendar_sender"
+#        CONFIG_FILE_EXTERNAL: "./configs/sender_config.toml"
+#    restart: unless-stopped
+#    depends_on:
+#      - db
+#      - broker
 
   db:
     image: postgres:${DB_VERSION}
@@ -39,6 +65,11 @@ services:
   broker:
     image: rabbitmq:3.11.1-management-alpine
     restart: unless-stopped
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
     volumes:
       - broker:/var/lib/rabbitmq/
       - broker:/var/log/rabbitmq

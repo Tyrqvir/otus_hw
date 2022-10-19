@@ -1,5 +1,14 @@
 [broker]
 dsn = "amqp://guest:guest@localhost:5672"
-queue_name = "eventQueue"
-reconnect_retries = 20
-reconnect_interval = "5s"
+queue = "calendar"
+
+[logger]
+level = "debug" # should be "info", "warn", "info", "error". See logger.go in logger package
+
+[storage]
+provider = "sql"
+DSN = ""
+
+[schedule]
+interval = "1h"
+remind = "2h"

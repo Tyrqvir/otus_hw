@@ -26,6 +26,5 @@ func MakeStorage(config *config.Config) (repository.IEventRepository, error) {
 		}
 		return instance, nil
 	}
-
-	return nil, storage.ErrCantCreateStorage
+	return nil, storage.ErrCantIdentifyStorage
 }

@@ -8,10 +8,12 @@ import (
 )
 
 type Config struct {
-	Logger LoggerConf
-	DB     DBConf
-	HTTP   HTTPConf
-	GRPS   GRPSConf
+	Logger   LoggerConf
+	DB       DBConf
+	HTTP     HTTPConf
+	GRPS     GRPSConf
+	Broker   BrokerConf
+	Schedule ScheduleConf
 }
 
 type LoggerConf struct {
@@ -32,8 +34,17 @@ type HTTPConf struct {
 }
 
 type GRPSConf struct {
-	Host string
 	Port string
+}
+
+type BrokerConf struct {
+	Dsn  string
+	Name string
+}
+
+type ScheduleConf struct {
+	Interval string
+	Remind   string
 }
 
 func NewConfig(configFile string) (*Config, error) {
@@ -48,8 +59,8 @@ func NewConfig(configFile string) (*Config, error) {
 			Level: viper.GetString("logger.level"),
 		},
 		DBConf{
-			DSN:      viper.GetString("db.DSN"),
-			Provider: viper.GetString("db.provider"),
+			DSN:      viper.GetString("storage.DSN"),
+			Provider: viper.GetString("storage.provider"),
 		},
 		HTTPConf{
 			Host:              viper.GetString("http.host"),
@@ -59,8 +70,15 @@ func NewConfig(configFile string) (*Config, error) {
 			ReadHeaderTimeout: viper.GetDuration("http.read_header_timeout"),
 		},
 		GRPSConf{
-			Host: viper.GetString("grps.host"),
 			Port: viper.GetString("grps.port"),
+		},
+		BrokerConf{
+			Dsn:  viper.GetString("broker.dsn"),
+			Name: viper.GetString("broker.name"),
+		},
+		ScheduleConf{
+			Interval: viper.GetString("broker.interval"),
+			Remind:   viper.GetString("broker.remind"),
 		},
 	}, nil
 }

@@ -28,14 +28,19 @@ func NewServerAggregator(grpcServer *grpc.Server, httpServer *rest.Server, logge
 }
 
 func (s *Server) Run(ctx context.Context, stop context.CancelFunc) {
+	s.logger.Info("calendar is running...")
+
+	s.startHttp(ctx, stop)
+
+	s.startGRPS(ctx, stop)
+}
+
+func (s *Server) startGRPS(ctx context.Context, stop context.CancelFunc) {
 	go func() {
-		<-ctx.Done()
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-
-		if err := s.HTTP.Stop(ctx); err != nil {
-			s.logger.Error("failed to stop http server: " + err.Error())
+		if err := s.GRPC.Start(); err != nil {
+			s.logger.Error("failed to start grps server: " + err.Error())
+			stop()
+			os.Exit(1)
 		}
 	}()
 
@@ -44,9 +49,9 @@ func (s *Server) Run(ctx context.Context, stop context.CancelFunc) {
 
 		s.GRPC.Stop()
 	}()
+}
 
-	s.logger.Info("calendar is running...")
-
+func (s *Server) startHttp(ctx context.Context, stop context.CancelFunc) {
 	go func() {
 		if err := s.HTTP.Start(ctx); err != nil {
 			s.logger.Error("failed to start http server: " + err.Error())
@@ -54,11 +59,15 @@ func (s *Server) Run(ctx context.Context, stop context.CancelFunc) {
 			os.Exit(1)
 		}
 	}()
+
 	go func() {
-		if err := s.GRPC.Start(); err != nil {
-			s.logger.Error("failed to start grps server: " + err.Error())
-			stop()
-			os.Exit(1)
+		<-ctx.Done()
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+		defer cancel()
+
+		if err := s.HTTP.Stop(ctx); err != nil {
+			s.logger.Error("failed to stop http server: " + err.Error())
 		}
 	}()
 }
