@@ -29,19 +29,19 @@ services:
     depends_on:
       - db
       - broker
-#
-#  calendar_sender:
-#    build:
-#      context: ./..
-#      dockerfile: ./build/Dockerfile
-#      args:
-#        BIN_FILE: "/opt/calendar/sender-app"
-#        APP_FOLDER: "calendar_sender"
-#        CONFIG_FILE_EXTERNAL: "./configs/sender_config.toml"
-#    restart: unless-stopped
-#    depends_on:
-#      - db
-#      - broker
+  #
+  #  calendar_sender:
+  #    build:
+  #      context: ./..
+  #      dockerfile: ./build/Dockerfile
+  #      args:
+  #        BIN_FILE: "/opt/calendar/sender-app"
+  #        APP_FOLDER: "calendar_sender"
+  #        CONFIG_FILE_EXTERNAL: "./configs/sender_config.toml"
+  #    restart: unless-stopped
+  #    depends_on:
+  #      - db
+  #      - broker
 
   db:
     image: postgres:${DB_VERSION}
