@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
 	"os/signal"
 	"syscall"
 
@@ -15,7 +16,7 @@ const versionArgKey = "version"
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "/etc/app/config.toml", "Path to configuration file")
 }
 
 func main() {
@@ -28,14 +29,14 @@ func main() {
 
 	cfg, err := config.NewConfig(configFile)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	logger := globalLogger.New(cfg.Logger.Level)
 
 	server, err := InitializeDIForServer(cfg, logger)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer stop()

@@ -10,4 +10,5 @@ var (
 	ErrNotFound             = errors.New("item not found")
 	ErrDateBusy             = errors.New("date is already busy")
 	ErrCantCreateStorage    = errors.New("can't create storage")
+	ErrCantIdentifyStorage  = errors.New("can't identify storage")
 )

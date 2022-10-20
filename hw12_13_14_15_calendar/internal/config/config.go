@@ -32,7 +32,6 @@ type HTTPConf struct {
 }
 
 type GRPSConf struct {
-	Host string
 	Port string
 }
 
@@ -48,8 +47,8 @@ func NewConfig(configFile string) (*Config, error) {
 			Level: viper.GetString("logger.level"),
 		},
 		DBConf{
-			DSN:      viper.GetString("db.DSN"),
-			Provider: viper.GetString("db.provider"),
+			DSN:      viper.GetString("storage.DSN"),
+			Provider: viper.GetString("storage.provider"),
 		},
 		HTTPConf{
 			Host:              viper.GetString("http.host"),
@@ -59,7 +58,6 @@ func NewConfig(configFile string) (*Config, error) {
 			ReadHeaderTimeout: viper.GetDuration("http.read_header_timeout"),
 		},
 		GRPSConf{
-			Host: viper.GetString("grps.host"),
 			Port: viper.GetString("grps.port"),
 		},
 	}, nil

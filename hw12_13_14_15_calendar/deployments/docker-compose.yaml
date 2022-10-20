@@ -5,12 +5,17 @@ services:
     build:
       context: ./..
       dockerfile: ./build/Dockerfile
+      args:
+        BIN_FILE: "/opt/calendar/calendar-app"
+        APP_FOLDER: "calendar"
+        CONFIG_FILE_EXTERNAL: "./configs/calendar_config.toml"
+    restart: unless-stopped
     container_name: calendar
     ports:
       - ${HTTP_PORT}:${HTTP_PORT}
+      - ${GRPS_PORT}:${GRPS_PORT}
     depends_on:
       - db
-    restart: unless-stopped
 
   db:
     image: postgres:${DB_VERSION}

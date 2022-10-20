@@ -1,17 +1,16 @@
 [logger]
 level = "debug" # should be "info", "warn", "info", "error". See logger.go in logger package
 
-[db]
+[storage]
 provider = "in-memory" # should be "sql", "in-memory"
 DSN = ""
 
 [http]
 host = "0.0.0.0"
-port = "86"
+port = "85"
 write_timeout = "5s"
 read_timeout = "5s"
 read_header_timeout = "5s"
 
 [grps]
-host = "0.0.0.0"
-port = "95"
+port = "86"
