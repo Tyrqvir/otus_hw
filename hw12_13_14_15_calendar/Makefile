@@ -35,7 +35,7 @@ build-sender: ## build sender
 	go build -v -o $(SENDER_BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar_sender
 
 
-run: run-calendar run-scheduler run-sender ## run all binaries
+run: run-calendar ## run all binaries
 
 run-calendar: build-calendar ## run calendar
 	$(CALENDAR_BIN) -config ./configs/calendar_config.toml
@@ -46,9 +46,9 @@ run-scheduler: build-scheduler ## run scheduler
 run-sender: build-sender ## run sender
 	$(SENDER_BIN) -config ./configs/sender_config.toml
 
-build: build-calendar build-scheduler build-sender ## build all app
+build: build-calendar ## build all app
 
-build-img: build-calendar-img build-scheduler-img build-sender-img ## build all images
+build-img: build-calendar-img ## build all images
 
 build-calendar-img: ## build calendar image
 	docker build \
@@ -86,7 +86,7 @@ run-scheduler-img: build-scheduler-img ## run scheduler image
 run-sender-img: build-sender-img ## run sender image
 	docker run $(SENDER_DOCKER_IMG)
 
-run-img: run-calendar-img run-scheduler-img run-sender-img ## run all images
+run-img: run-calendar-img## run all images
 
 version: build-calendar ## show version of calendar
 	$(CALENDAR_BIN) version
@@ -115,6 +115,5 @@ test-packages: ## Test all packages
 
 wire: ## Run DI generating
 	wire cmd/calendar/wire.go
-	wire cmd/calendar_scheduler/wire.go
 
 full: build run build-img run-img version test lint
