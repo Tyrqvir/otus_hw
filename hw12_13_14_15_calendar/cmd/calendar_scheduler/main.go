@@ -11,8 +11,6 @@ import (
 	globalLogger "github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/logger"
 )
 
-const versionArgKey = "version"
-
 var configFile string
 
 func init() {
@@ -22,11 +20,6 @@ func init() {
 func main() {
 	flag.Parse()
 
-	if flag.Arg(0) == versionArgKey {
-		printVersion()
-		return
-	}
-
 	cfg, err := config.NewConfig(configFile)
 	if err != nil {
 		log.Fatalln(err)
@@ -34,13 +27,14 @@ func main() {
 
 	logger := globalLogger.New(cfg.Logger.Level)
 
-	server, err := InitializeDIForServer(cfg, logger)
+	scheduler, err := InitializeDIForScheduler(cfg, logger)
 	if err != nil {
 		log.Fatalln(err)
 	}
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer stop()
 
-	server.Run(ctx, stop)
+	scheduler.Run(ctx, stop)
 	<-ctx.Done()
 }

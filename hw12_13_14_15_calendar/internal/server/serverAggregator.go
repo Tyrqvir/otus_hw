@@ -30,7 +30,7 @@ func NewServerAggregator(grpcServer *grpc.Server, httpServer *rest.Server, logge
 func (s *Server) Run(ctx context.Context, stop context.CancelFunc) {
 	s.logger.Info("calendar is running...")
 
-	s.startHttp(ctx, stop)
+	s.startHTTP(ctx, stop)
 
 	s.startGRPS(ctx, stop)
 }
@@ -51,7 +51,7 @@ func (s *Server) startGRPS(ctx context.Context, stop context.CancelFunc) {
 	}()
 }
 
-func (s *Server) startHttp(ctx context.Context, stop context.CancelFunc) {
+func (s *Server) startHTTP(ctx context.Context, stop context.CancelFunc) {
 	go func() {
 		if err := s.HTTP.Start(ctx); err != nil {
 			s.logger.Error("failed to start http server: " + err.Error())

@@ -13,6 +13,9 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
 .PHONY: help
 
+up-d: ## docker up with detach
+	cd $(DOCKER_COMPOSE_FOLDER) && docker-compose up -d
+
 up: ## docker up
 	cd $(DOCKER_COMPOSE_FOLDER) && docker-compose up
 
@@ -112,5 +115,6 @@ test-packages: ## Test all packages
 
 wire: ## Run DI generating
 	wire cmd/calendar/wire.go
+	wire cmd/calendar_scheduler/wire.go
 
 full: build run build-img run-img version test lint

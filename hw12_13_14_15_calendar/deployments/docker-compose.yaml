@@ -17,18 +17,18 @@ services:
     depends_on:
       - db
 
-#  calendar_scheduler:
-#    build:
-#      context: ./..
-#      dockerfile: ./build/Dockerfile
-#      args:
-#        BIN_FILE: "/opt/calendar/scheduler-app"
-#        APP_FOLDER: "calendar_scheduler"
-#        CONFIG_FILE_EXTERNAL: "./configs/scheduler_config.toml"
-#    restart: unless-stopped
-#    depends_on:
-#      - db
-#      - broker
+  calendar_scheduler:
+    build:
+      context: ./..
+      dockerfile: ./build/Dockerfile
+      args:
+        BIN_FILE: "/opt/calendar/scheduler-app"
+        APP_FOLDER: "calendar_scheduler"
+        CONFIG_FILE_EXTERNAL: "./configs/scheduler_config.toml"
+    restart: unless-stopped
+    depends_on:
+      - db
+      - broker
 #
 #  calendar_sender:
 #    build:

@@ -2,6 +2,7 @@ package memorystorage
 
 import (
 	"context"
+	"log"
 	"testing"
 	"time"
 
@@ -33,7 +34,7 @@ func dummyStorage() *Storage {
 	dummyStorage := New()
 	_, err := dummyStorage.CreateEvent(ctx, event)
 	if err != nil {
-		panic("Can't create dummy storage")
+		log.Fatalln("Can't create dummy storage:", err)
 	}
 
 	return dummyStorage
