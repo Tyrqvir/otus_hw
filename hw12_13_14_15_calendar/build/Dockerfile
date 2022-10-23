@@ -1,4 +1,4 @@
-FROM golang:1.18 as build
+FROM golang:1.18-alpine as build
 
 ARG BIN_FILE
 ARG APP_FOLDER
@@ -23,7 +23,7 @@ RUN CGO_ENABLED=0 go build \
         -o ${BIN_FILE} ./cmd/${APP_FOLDER}
 
 # На выходе тонкий образ
-FROM alpine:3.9
+FROM scratch
 
 ARG CONFIG_FILE_EXTERNAL
 

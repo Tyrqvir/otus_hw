@@ -27,13 +27,13 @@ type Event struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id                 int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Title              string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Start              *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=start,proto3" json:"start,omitempty"`
-	End                *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end,proto3" json:"end,omitempty"`
-	Description        string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	OwnerId            int64                  `protobuf:"varint,6,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
-	NotificationBefore *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=NotificationBefore,proto3" json:"NotificationBefore,omitempty"`
+	Id               int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Title            string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	StartDate        *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=start,proto3" json:"start,omitempty"`
+	EndDate          *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end,proto3" json:"end,omitempty"`
+	Description      string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
+	OwnerId          int64                  `protobuf:"varint,6,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
+	NotificationDate *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=NotificationDate,proto3" json:"NotificationDate,omitempty"`
 }
 
 func (x *Event) Reset() {
@@ -84,14 +84,14 @@ func (x *Event) GetTitle() string {
 
 func (x *Event) GetStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.Start
+		return x.StartDate
 	}
 	return nil
 }
 
 func (x *Event) GetEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.End
+		return x.EndDate
 	}
 	return nil
 }
@@ -112,7 +112,7 @@ func (x *Event) GetOwnerId() int64 {
 
 func (x *Event) GetNotificationBefore() *timestamppb.Timestamp {
 	if x != nil {
-		return x.NotificationBefore
+		return x.NotificationDate
 	}
 	return nil
 }
@@ -634,7 +634,7 @@ var file_EventService_proto_goTypes = []interface{}{
 var file_EventService_proto_depIdxs = []int32{
 	9,  // 0: event.Event.start:type_name -> google.protobuf.Timestamp
 	9,  // 1: event.Event.end:type_name -> google.protobuf.Timestamp
-	9,  // 2: event.Event.NotificationBefore:type_name -> google.protobuf.Timestamp
+	9,  // 2: event.Event.NotificationDate:type_name -> google.protobuf.Timestamp
 	0,  // 3: event.CreateEventRequest.event:type_name -> event.Event
 	0,  // 4: event.UpdateEventRequest.event:type_name -> event.Event
 	9,  // 5: event.EventListRequest.start:type_name -> google.protobuf.Timestamp

@@ -1,0 +1,9 @@
+[logger]
+level = "debug" # should be "info", "warn", "info", "error". See logger.go in logger package
+
+[consumer]
+dsn = "amqp://guest:guest@localhost:5672"
+queue = "calendar"
+exchangeName = "test-exchange"
+exchangeType = "direct"
+bindingKey = "test-key"

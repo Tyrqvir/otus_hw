@@ -59,8 +59,26 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+
+  migration:
+    container_name: migration
+    build:
+      context: ./..
+      dockerfile: ./build/migration/Dockerfile
+    restart: on-failure
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: "host=db port=5432 user=postgres password=megapass dbname=calendar sslmode=disable"
     volumes:
-      - ./migrations/schema:/docker-entrypoint-initdb.d
+      - "../migrations:/migrations"
+    depends_on:
+      - db
+
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - ${ADMINER_PORT}:8080
 
   broker:
     image: rabbitmq:3.11.1-management-alpine

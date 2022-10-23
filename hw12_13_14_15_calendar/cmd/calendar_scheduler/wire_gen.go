@@ -11,12 +11,17 @@ import (
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/scheduler"
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/storage/factory"
 )
 
 // Injectors from wire.go:
 
 func InitializeDIForScheduler(config2 *config.Config, logger2 logger.ILogger) (*scheduler.Scheduler, error) {
-	rabbitMQ := broker.New(config2, logger2)
-	schedulerScheduler := scheduler.New(config2, logger2, rabbitMQ)
+	producer := broker.NewProducer(config2, logger2)
+	iEventRepository, err := factory.MakeStorage(config2)
+	if err != nil {
+		return nil, err
+	}
+	schedulerScheduler := scheduler.New(config2, logger2, producer, iEventRepository)
 	return schedulerScheduler, nil
 }

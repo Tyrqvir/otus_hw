@@ -35,6 +35,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer stop()
 
-	scheduler.Run(ctx, stop)
+	scheduler.Handle(ctx)
+
 	<-ctx.Done()
 }

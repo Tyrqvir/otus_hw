@@ -43,7 +43,7 @@ func (cs *CalendarServer) CreateEvent(
 		return nil, status.Errorf(
 			codes.InvalidArgument,
 			"%v : %s",
-			storage.ErrDateBusy, request.Event.Start.AsTime(),
+			storage.ErrDateBusy, request.Event.StartDate.AsTime(),
 		)
 	}
 	if err != nil {
@@ -59,7 +59,7 @@ func (cs *CalendarServer) UpdateEvent(
 ) (*eventpb.UpdateEventResponse, error) {
 	updatedUID, err := cs.crud.UpdateEvent(ctx, FromEvent(request.Event))
 	if errors.Is(err, storage.ErrDateBusy) {
-		return nil, status.Errorf(codes.InvalidArgument, "date %s already busy", request.Event.Start.AsTime())
+		return nil, status.Errorf(codes.InvalidArgument, "date %s already busy", request.Event.StartDate.AsTime())
 	}
 	if err != nil {
 		return nil, err

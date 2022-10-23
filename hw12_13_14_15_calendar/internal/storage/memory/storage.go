@@ -20,7 +20,7 @@ func (s *Storage) CreateEvent(_ context.Context, event model.Event) (model.Event
 	defer s.mu.Unlock()
 
 	for _, storeEvent := range s.store {
-		if storeEvent.Start.Equal(event.Start) && storeEvent.OwnerID == event.OwnerID {
+		if storeEvent.StartDate.Equal(event.StartDate) && storeEvent.OwnerID == event.OwnerID {
 			return 0, storage.ErrDateBusy
 		}
 	}
@@ -61,12 +61,59 @@ func (s *Storage) EventsByPeriodForOwner(
 	defer s.mu.RUnlock()
 
 	for _, event := range s.store {
-		if ownerID == event.OwnerID && start.Before(event.Start) && end.After(event.End) {
+		if ownerID == event.OwnerID && start.Before(event.StartDate) && end.After(event.EndDate) {
 			events = append(events, event)
 		}
 	}
 
 	return events, nil
+}
+
+func (s *Storage) TruncateOlderEvents(_ context.Context, date time.Time) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for k, event := range s.store {
+		if date.After(event.StartDate) && event.IsNotified == 1 {
+			delete(s.store, k)
+		}
+	}
+
+	return nil
+}
+
+func (s *Storage) NoticesByNotificationDate(_ context.Context, date time.Time) ([]model.Notice, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var notifications []model.Notice
+
+	for _, event := range s.store {
+		if event.NotificationDate.Before(date) && event.IsNotified == 0 {
+			var notice model.Notice
+			notice.ID = event.ID
+			notice.Title = event.Title
+			notice.Datetime = event.NotificationDate
+			notice.OwnerID = event.OwnerID
+			notifications = append(notifications, notice)
+		}
+	}
+	return notifications, nil
+}
+
+func (s *Storage) UpdateIsNotified(_ context.Context, id model.EventID, isNotified byte) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for k, e := range s.store {
+		if e.ID == id {
+			e.IsNotified = isNotified
+			s.store[k] = e
+			return nil
+		}
+	}
+
+	return nil
 }
 
 func New() *Storage {

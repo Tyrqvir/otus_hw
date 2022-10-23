@@ -2,8 +2,8 @@
 level = "debug" # should be "info", "warn", "info", "error". See logger.go in logger package
 
 [storage]
-provider = "in-memory" # should be "sql", "in-memory"
-DSN = ""
+provider = "sql" # should be "sql", "in-memory"
+DSN = "host=0.0.0.0 port=5432 user=postgres password=megapass dbname=calendar sslmode=disable"
 
 [http]
 host = "0.0.0.0"

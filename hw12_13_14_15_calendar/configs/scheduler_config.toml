@@ -1,14 +1,16 @@
-[broker]
+[publisher]
 dsn = "amqp://guest:guest@localhost:5672"
 queue = "calendar"
+exchangeName = "test-exchange"
+exchangeType = "direct"
+routingKey = "test-key"
 
 [logger]
 level = "debug" # should be "info", "warn", "info", "error". See logger.go in logger package
 
 [storage]
 provider = "sql"
-DSN = ""
+DSN = "host=0.0.0.0 port=5432 user=postgres password=megapass dbname=calendar sslmode=disable"
 
 [schedule]
-interval = "1h"
-remind = "2h"
+interval = "2s"

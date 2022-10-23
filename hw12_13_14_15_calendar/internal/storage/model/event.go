@@ -2,17 +2,13 @@ package model
 
 import "time"
 
-type (
-	EventID int64
-	OwnerID int64
-)
-
 type Event struct {
-	ID                 EventID
-	Title              string
-	Start              time.Time
-	End                time.Time
-	Description        string
-	OwnerID            OwnerID
-	NotificationBefore time.Time
+	ID               EventID
+	Title            string
+	StartDate        time.Time
+	EndDate          time.Time
+	Description      string
+	OwnerID          OwnerID
+	NotificationDate time.Time
+	IsNotified       byte
 }

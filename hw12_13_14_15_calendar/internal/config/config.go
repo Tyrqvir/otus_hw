@@ -8,12 +8,13 @@ import (
 )
 
 type Config struct {
-	Logger   LoggerConf
-	DB       DBConf
-	HTTP     HTTPConf
-	GRPS     GRPSConf
-	Broker   BrokerConf
-	Schedule ScheduleConf
+	Logger    LoggerConf
+	DB        DBConf
+	HTTP      HTTPConf
+	GRPS      GRPSConf
+	Publisher PublisherConf
+	Consumer  ConsumerConf
+	Schedule  ScheduleConf
 }
 
 type LoggerConf struct {
@@ -37,14 +38,24 @@ type GRPSConf struct {
 	Port string
 }
 
-type BrokerConf struct {
-	Dsn  string
-	Name string
+type PublisherConf struct {
+	Dsn          string
+	QueueName    string
+	ExchangeName string
+	ExchangeType string
+	RoutingKey   string
+}
+
+type ConsumerConf struct {
+	Dsn          string
+	QueueName    string
+	ExchangeName string
+	ExchangeType string
+	BindingKey   string
 }
 
 type ScheduleConf struct {
-	Interval string
-	Remind   string
+	Interval time.Duration
 }
 
 func NewConfig(configFile string) (*Config, error) {
@@ -72,13 +83,22 @@ func NewConfig(configFile string) (*Config, error) {
 		GRPSConf{
 			Port: viper.GetString("grps.port"),
 		},
-		BrokerConf{
-			Dsn:  viper.GetString("broker.dsn"),
-			Name: viper.GetString("broker.name"),
+		PublisherConf{
+			Dsn:          viper.GetString("publisher.dsn"),
+			QueueName:    viper.GetString("publisher.queue"),
+			ExchangeName: viper.GetString("publisher.exchangeName"),
+			ExchangeType: viper.GetString("publisher.exchangeType"),
+			RoutingKey:   viper.GetString("publisher.routingKey"),
+		},
+		ConsumerConf{
+			Dsn:          viper.GetString("consumer.dsn"),
+			QueueName:    viper.GetString("consumer.queue"),
+			ExchangeName: viper.GetString("consumer.exchangeName"),
+			ExchangeType: viper.GetString("consumer.exchangeType"),
+			BindingKey:   viper.GetString("consumer.bindingKey"),
 		},
 		ScheduleConf{
-			Interval: viper.GetString("broker.interval"),
-			Remind:   viper.GetString("broker.remind"),
+			Interval: viper.GetDuration("schedule.interval"),
 		},
 	}, nil
 }

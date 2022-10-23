@@ -101,16 +101,16 @@ func TestCalendarServer_EventsByPeriodAndOwner(t *testing.T) {
 
 		items := []model.Event{
 			{
-				ID:      1,
-				OwnerID: 1,
-				Start:   startData,
-				End:     endData,
+				ID:        1,
+				OwnerID:   1,
+				StartDate: startData,
+				EndDate:   endData,
 			},
 			{
-				ID:      2,
-				OwnerID: 1,
-				Start:   startData,
-				End:     endData,
+				ID:        2,
+				OwnerID:   1,
+				StartDate: startData,
+				EndDate:   endData,
 			},
 		}
 

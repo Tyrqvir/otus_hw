@@ -19,13 +19,13 @@ var ctx = context.Background()
 
 func dummyEvent() model.Event {
 	return model.Event{
-		ID:                 dummyID,
-		Title:              "dummy title",
-		Start:              time.Now(),
-		End:                time.Now(),
-		Description:        "dummy description",
-		OwnerID:            ownerID,
-		NotificationBefore: time.Now(),
+		ID:               dummyID,
+		Title:            "dummy title",
+		StartDate:        time.Now(),
+		EndDate:          time.Now(),
+		Description:      "dummy description",
+		OwnerID:          ownerID,
+		NotificationDate: time.Now(),
 	}
 }
 
@@ -86,8 +86,18 @@ func TestStorage(t *testing.T) {
 	t.Run("test lists", func(t *testing.T) {
 		storage := New()
 		now := time.Now()
-		event1 := model.Event{ID: 1, Start: now.Add(-3 * time.Minute), End: now.Add(4 * time.Minute), OwnerID: ownerID}
-		event2 := model.Event{ID: 2, Start: now.Add(-2 * time.Minute), End: now.Add(10 * time.Minute), OwnerID: ownerID}
+		event1 := model.Event{
+			ID:        1,
+			StartDate: now.Add(-3 * time.Minute),
+			EndDate:   now.Add(4 * time.Minute),
+			OwnerID:   ownerID,
+		}
+		event2 := model.Event{
+			ID:        2,
+			StartDate: now.Add(-2 * time.Minute),
+			EndDate:   now.Add(10 * time.Minute),
+			OwnerID:   ownerID,
+		}
 		_, _ = storage.CreateEvent(ctx, event1)
 		_, _ = storage.CreateEvent(ctx, event2)
 		require.Len(t, storage.store, 2)
@@ -100,8 +110,8 @@ func TestStorage(t *testing.T) {
 	t.Run("test add 2 with same ID but different start date", func(t *testing.T) {
 		storage := New()
 		currentTime := time.Now()
-		event1 := model.Event{ID: 1, Start: currentTime}
-		event2 := model.Event{ID: 1, Start: currentTime.Add(5 * time.Minute)}
+		event1 := model.Event{ID: 1, StartDate: currentTime}
+		event2 := model.Event{ID: 1, StartDate: currentTime.Add(5 * time.Minute)}
 		_, err := storage.CreateEvent(ctx, event1)
 		require.NoError(t, err)
 
@@ -114,8 +124,8 @@ func TestStorage(t *testing.T) {
 	t.Run("test add 2 with same Date and different ID", func(t *testing.T) {
 		storage := New()
 		currentTime := time.Now()
-		event1 := model.Event{ID: 1, Start: currentTime}
-		event2 := model.Event{ID: 2, Start: currentTime}
+		event1 := model.Event{ID: 1, StartDate: currentTime}
+		event2 := model.Event{ID: 2, StartDate: currentTime}
 		_, err := storage.CreateEvent(ctx, event1)
 		require.NoError(t, err)
 

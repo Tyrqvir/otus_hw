@@ -116,5 +116,9 @@ test-packages: ## Test all packages
 wire: ## Run DI generating
 	wire cmd/calendar/wire.go
 	wire cmd/calendar_scheduler/wire.go
+	wire cmd/calendar_sender/wire.go
+
+migrate:
+	goose -dir migrations/ postgres "host=localhost port=5432 user=postgres password=megapass dbname=calendar sslmode=disable" up
 
 full: build run build-img run-img version test lint
