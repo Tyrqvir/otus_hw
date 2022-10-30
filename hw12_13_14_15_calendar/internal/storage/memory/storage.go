@@ -101,7 +101,7 @@ func (s *Storage) NoticesByNotificationDate(_ context.Context, date time.Time) (
 	return notifications, nil
 }
 
-func (s *Storage) UpdateIsNotified(_ context.Context, id model.EventID, isNotified byte) error {
+func (s *Storage) UpdateIsNotified(_ context.Context, id model.EventID, isNotified int64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

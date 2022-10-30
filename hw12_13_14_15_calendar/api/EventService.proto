@@ -9,11 +9,12 @@ import "google/api/annotations.proto";
 message Event {
   int64 id = 1;
   string title = 2;
-  google.protobuf.Timestamp start= 3;
-  google.protobuf.Timestamp end = 4;
+  google.protobuf.Timestamp start_date= 3;
+  google.protobuf.Timestamp end_date = 4;
   string description = 5;
   int64 owner_id = 6;
-  google.protobuf.Timestamp NotificationBefore = 7;
+  google.protobuf.Timestamp notification_date = 7;
+  int64 is_notified = 8;
 }
 
 message CreateEventRequest {
@@ -54,24 +55,24 @@ message EventListResponse {
 service Calendar {
   rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {
     option (google.api.http) = {
-      post: "/v1/event"
+      post: "/v1/events"
       body: "*"
     };
   }
   rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse) {
     option (google.api.http) = {
-      put: "/v1/event/{id}"
+      put: "/v1/events/{id}"
       body: "*"
     };
   }
   rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse) {
     option (google.api.http) = {
-      delete: "/v1/event/{id}"
+      delete: "/v1/events/{id}"
     };
   }
   rpc EventsByPeriodAndOwner(EventListRequest) returns (EventListResponse) {
     option (google.api.http) = {
-      get: "/v1/event/period/{start}/{end}/owner/{owner}"
+      get: "/v1/events/period/{start}/{end}/owner/{owner}"
     };
   }
 }

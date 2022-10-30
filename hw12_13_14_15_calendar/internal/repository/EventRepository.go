@@ -15,7 +15,7 @@ type IEventRepository interface {
 	EventsByPeriodForOwner(ctx context.Context, ownerID model.OwnerID, startDate, endDate time.Time) ([]model.Event, error)
 	TruncateOlderEvents(ctx context.Context, date time.Time) error
 	NoticesByNotificationDate(ctx context.Context, date time.Time) ([]model.Notice, error)
-	UpdateIsNotified(ctx context.Context, id model.EventID, isNotified byte) error
+	UpdateIsNotified(ctx context.Context, id model.EventID, isNotified int64) error
 }
 
 type EventCrud struct {

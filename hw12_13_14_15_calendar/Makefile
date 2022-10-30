@@ -1,10 +1,14 @@
 CALENDAR_BIN := "./bin/calendar"
 SCHEDULER_BIN := "./bin/calendar_scheduler"
 SENDER_BIN := "./bin/calendar_sender"
-CALENDAR_DOCKER_IMG="calendar:develop"
-SCHEDULER_DOCKER_IMG="scheduler:develop"
-SENDER_DOCKER_IMG="sender:develop"
-DOCKER_COMPOSE_FOLDER="./deployments"
+CALENDAR_DOCKER_IMG :="calendar:develop"
+SCHEDULER_DOCKER_IMG :="scheduler:develop"
+SENDER_DOCKER_IMG :="sender:develop"
+INTERGRATION_TEST_DOCKER_IMG :="integration-test:develop"
+DOCKER_COMPOSE_FOLDER := ./deployments
+DOCKER_FILE := $(DOCKER_COMPOSE_FOLDER)/docker-compose.yaml
+DOCKER_TEST_FILE := $(DOCKER_COMPOSE_FOLDER)/docker-compose.test.yaml
+DOCKER_TEST_ENV := $(DOCKER_COMPOSE_FOLDER)/.env.testing
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
@@ -13,14 +17,14 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
 .PHONY: help
 
-up-d: ## docker up with detach
-	cd $(DOCKER_COMPOSE_FOLDER) && docker-compose up -d
-
-up: ## docker up
+up-watch: ## docker up with watcher
 	cd $(DOCKER_COMPOSE_FOLDER) && docker-compose up
 
+up: ## docker up
+	cd $(DOCKER_COMPOSE_FOLDER) && docker-compose up -d
+
 rebuild: ## docker rebuild
-	cd $(DOCKER_COMPOSE_FOLDER) && docker-compose up --build
+	cd $(DOCKER_COMPOSE_FOLDER) && docker-compose up -d --build
 
 down: ## docker down
 	cd $(DOCKER_COMPOSE_FOLDER) && docker-compose down --remove-orphans
@@ -77,6 +81,12 @@ build-sender-img: ## build sender image
 		-t $(SENDER_DOCKER_IMG) \
 		-f build/Dockerfile .
 
+build-integration-tests-img: ## build integration tests img
+	docker build \
+		--build-arg=CONFIG_FILE_EXTERNAL="configs/calendar_config.toml" \
+		-t $(INTERGRATION_TEST_DOCKER_IMG) \
+		-f build/test/Dockerfile .
+
 run-calendar-img: build-calendar-img ## run calendar image
 	docker run $(CALENDAR_DOCKER_IMG)
 
@@ -121,4 +131,12 @@ wire: ## Run DI generating
 migrate:
 	goose -dir migrations/ postgres "host=localhost port=5432 user=postgres password=megapass dbname=calendar sslmode=disable" up
 
-full: build run build-img run-img version test lint
+integration-tests:
+	set -e ;\
+	docker-compose -f $(DOCKER_FILE) -f $(DOCKER_TEST_FILE) --env-file $(DOCKER_TEST_ENV) up -d --build ;\
+	return_code=0 ;\
+	docker-compose -f $(DOCKER_FILE) -f $(DOCKER_TEST_FILE) --env-file $(DOCKER_TEST_ENV) run calendar_integration_test go test -v || return_code=$$? ;\
+	docker-compose -f $(DOCKER_FILE) -f $(DOCKER_TEST_FILE) --env-file $(DOCKER_TEST_ENV) down --volumes ;\
+	exit $$return_code ;\
+
+full: lint tests build run build-img run-img version

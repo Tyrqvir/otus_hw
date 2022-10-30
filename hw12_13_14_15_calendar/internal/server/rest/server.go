@@ -30,7 +30,7 @@ func New(h http.Handler, logger logger.ILogger, config *config.Config) *Server {
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	s.logger.Info("StartDate http server...")
+	s.logger.Info("start http server...")
 
 	err := s.httpServer.ListenAndServe()
 	if err != nil {

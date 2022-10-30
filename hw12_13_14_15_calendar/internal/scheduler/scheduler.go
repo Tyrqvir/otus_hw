@@ -38,6 +38,8 @@ func New(
 }
 
 func (s *Scheduler) Handle(ctx context.Context) {
+	s.logger.Info("scheduler starting ...")
+
 	ticker := time.NewTicker(s.interval)
 	defer ticker.Stop()
 

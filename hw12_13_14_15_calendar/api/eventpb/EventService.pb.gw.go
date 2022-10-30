@@ -291,7 +291,7 @@ func RegisterCalendarHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/event.Calendar/CreateEvent", runtime.WithHTTPPathPattern("/v1/event"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/event.Calendar/CreateEvent", runtime.WithHTTPPathPattern("/v1/events"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -316,7 +316,7 @@ func RegisterCalendarHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/event.Calendar/UpdateEvent", runtime.WithHTTPPathPattern("/v1/event/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/event.Calendar/UpdateEvent", runtime.WithHTTPPathPattern("/v1/events/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -341,7 +341,7 @@ func RegisterCalendarHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/event.Calendar/DeleteEvent", runtime.WithHTTPPathPattern("/v1/event/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/event.Calendar/DeleteEvent", runtime.WithHTTPPathPattern("/v1/events/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -366,7 +366,7 @@ func RegisterCalendarHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/event.Calendar/EventsByPeriodAndOwner", runtime.WithHTTPPathPattern("/v1/event/period/{start}/{end}/owner/{owner}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/event.Calendar/EventsByPeriodAndOwner", runtime.WithHTTPPathPattern("/v1/events/period/{start}/{end}/owner/{owner}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -430,7 +430,7 @@ func RegisterCalendarHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event.Calendar/CreateEvent", runtime.WithHTTPPathPattern("/v1/event"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event.Calendar/CreateEvent", runtime.WithHTTPPathPattern("/v1/events"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -452,7 +452,7 @@ func RegisterCalendarHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event.Calendar/UpdateEvent", runtime.WithHTTPPathPattern("/v1/event/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event.Calendar/UpdateEvent", runtime.WithHTTPPathPattern("/v1/events/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -474,7 +474,7 @@ func RegisterCalendarHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event.Calendar/DeleteEvent", runtime.WithHTTPPathPattern("/v1/event/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event.Calendar/DeleteEvent", runtime.WithHTTPPathPattern("/v1/events/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -496,7 +496,7 @@ func RegisterCalendarHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event.Calendar/EventsByPeriodAndOwner", runtime.WithHTTPPathPattern("/v1/event/period/{start}/{end}/owner/{owner}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event.Calendar/EventsByPeriodAndOwner", runtime.WithHTTPPathPattern("/v1/events/period/{start}/{end}/owner/{owner}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -516,13 +516,13 @@ func RegisterCalendarHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 }
 
 var (
-	pattern_Calendar_CreateEvent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "event"}, ""))
+	pattern_Calendar_CreateEvent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "events"}, ""))
 
-	pattern_Calendar_UpdateEvent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "event", "id"}, ""))
+	pattern_Calendar_UpdateEvent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "events", "id"}, ""))
 
-	pattern_Calendar_DeleteEvent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "event", "id"}, ""))
+	pattern_Calendar_DeleteEvent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "events", "id"}, ""))
 
-	pattern_Calendar_EventsByPeriodAndOwner_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4, 2, 5, 1, 0, 4, 1, 5, 5}, []string{"v1", "event", "period", "start", "end", "owner"}, ""))
+	pattern_Calendar_EventsByPeriodAndOwner_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4, 2, 5, 1, 0, 4, 1, 5, 5}, []string{"v1", "events", "period", "start", "end", "owner"}, ""))
 )
 
 var (

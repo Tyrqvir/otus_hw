@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  calendar_integration_test:
+    container_name: calendar_integration_test
+    build:
+      context: ./..
+      dockerfile: ./build/test/Dockerfile
+      args:
+        CONFIG_FILE_EXTERNAL: "./configs/calendar_config.toml"
+    environment:
+      STORAGE_DSN: "host=db port=$DB_PORT user=$DB_USER password=$DB_PASSWORD dbname=$DB_NAME sslmode=disable"
+      HTTP_HOST: "calendar"
+    depends_on:
+      - calendar
+      - calendar_scheduler
+      - calendar_sender
+
+networks:
+  default:
+    name: calendar_test_network
+
+volumes:
+  postgres-data:
+    name: postgres_data_test

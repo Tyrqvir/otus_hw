@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE events (
-    id varchar(100) NOT NULL,
+    id serial NOT NULL,
     title varchar(100) NOT NULL,
     start_date timestamptz NOT NULL,
     end_date timestamptz NOT NULL,
@@ -13,6 +13,8 @@ CREATE TABLE events (
     is_notified smallint DEFAULT 0,
     primary key (id)
 );
+
+CREATE UNIQUE INDEX events_owner_id_with_start_date_idx ON events USING btree (owner_id, start_date);
 
 -- +goose StatementEnd
 

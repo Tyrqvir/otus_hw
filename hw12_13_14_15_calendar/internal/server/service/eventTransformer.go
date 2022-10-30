@@ -15,6 +15,7 @@ func ToEvent(event model.Event) *eventpb.Event {
 		EndDate:          timestamppb.New(event.EndDate),
 		OwnerId:          int64(event.OwnerID),
 		NotificationDate: timestamppb.New(event.NotificationDate),
+		IsNotified:       event.IsNotified,
 	}
 }
 
@@ -27,6 +28,7 @@ func FromEvent(event *eventpb.Event) model.Event {
 		EndDate:          event.EndDate.AsTime(),
 		OwnerID:          model.OwnerID(event.OwnerId),
 		NotificationDate: event.NotificationDate.AsTime(),
+		IsNotified:       event.IsNotified,
 	}
 }
 

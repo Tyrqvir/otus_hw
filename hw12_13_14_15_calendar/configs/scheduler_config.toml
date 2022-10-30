@@ -1,5 +1,5 @@
 [publisher]
-dsn = "amqp://guest:guest@localhost:5672"
+dsn = "amqp://guest:guest@broker:5672"
 queue = "calendar"
 exchangeName = "test-exchange"
 exchangeType = "direct"
@@ -13,4 +13,4 @@ provider = "sql"
 DSN = "host=0.0.0.0 port=5432 user=postgres password=megapass dbname=calendar sslmode=disable"
 
 [schedule]
-interval = "2s"
+interval = "3s"
