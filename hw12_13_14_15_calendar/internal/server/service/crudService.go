@@ -3,34 +3,24 @@ package service
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/api/eventpb"
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/repository"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/storage"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/storage/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-//go:generate mockery --name IEventCrud --dir ./ --output ./../../../internal/mocks
-type (
-	IEventCrud interface {
-		CreateEvent(ctx context.Context, event model.Event) (int64, error)
-		UpdateEvent(ctx context.Context, event model.Event) (int64, error)
-		DeleteEvent(ctx context.Context, id model.EventID) (int64, error)
-		EventsByPeriodForOwner(ctx context.Context, ownerID model.OwnerID, start, end time.Time) ([]model.Event, error)
-	}
-)
-
 type CalendarServer struct {
 	eventpb.UnimplementedCalendarServer
 
-	crud IEventCrud
+	repository repository.IEventRepository
 }
 
-func NewCalendarServer(crud IEventCrud) *CalendarServer {
+func NewCalendarServer(repository repository.IEventRepository) *CalendarServer {
 	return &CalendarServer{
-		crud: crud,
+		repository: repository,
 	}
 }
 
@@ -38,7 +28,7 @@ func (cs *CalendarServer) CreateEvent(
 	ctx context.Context,
 	request *eventpb.CreateEventRequest,
 ) (*eventpb.CreateEventResponse, error) {
-	id, err := cs.crud.CreateEvent(ctx, FromEvent(request.CommonEvent))
+	id, err := cs.repository.CreateEvent(ctx, FromEvent(request.CommonEvent))
 	if errors.Is(err, storage.ErrDateBusy) {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
@@ -50,27 +40,27 @@ func (cs *CalendarServer) CreateEvent(
 		return nil, err
 	}
 
-	return &eventpb.CreateEventResponse{InsertedId: id}, nil
+	return &eventpb.CreateEventResponse{InsertedId: int64(id)}, nil
 }
 
 func (cs *CalendarServer) UpdateEvent(
 	ctx context.Context,
 	request *eventpb.UpdateEventRequest,
 ) (*eventpb.UpdateEventResponse, error) {
-	_, err := cs.crud.UpdateEvent(ctx, FromEvent(request.CommonEvent))
+	_, err := cs.repository.UpdateEvent(ctx, FromEvent(request.CommonEvent))
 	if errors.Is(err, storage.ErrDateBusy) {
 		return &eventpb.UpdateEventResponse{
-			Updated: 0,
+			Updated: false,
 		}, status.Errorf(codes.InvalidArgument, "date %s already busy", request.CommonEvent.StartDate.AsTime())
 	}
 	if err != nil {
 		return &eventpb.UpdateEventResponse{
-			Updated: 0,
+			Updated: false,
 		}, err
 	}
 
 	return &eventpb.UpdateEventResponse{
-		Updated: 1,
+		Updated: true,
 	}, nil
 }
 
@@ -78,13 +68,13 @@ func (cs *CalendarServer) DeleteEvent(
 	ctx context.Context,
 	request *eventpb.DeleteEventRequest,
 ) (*eventpb.DeleteEventResponse, error) {
-	deletedID, err := cs.crud.DeleteEvent(ctx, model.EventID(request.Id))
+	_, err := cs.repository.DeleteEvent(ctx, model.EventID(request.Id))
 	if err != nil {
 		return nil, err
 	}
 
 	return &eventpb.DeleteEventResponse{
-		Deleted: deletedID,
+		Deleted: true,
 	}, nil
 }
 
@@ -92,7 +82,7 @@ func (cs *CalendarServer) EventsByPeriodAndOwner(
 	ctx context.Context,
 	request *eventpb.EventListRequest,
 ) (*eventpb.EventListResponse, error) {
-	events, err := cs.crud.EventsByPeriodForOwner(
+	events, err := cs.repository.EventsByPeriodForOwner(
 		ctx,
 		model.OwnerID(request.Owner),
 		request.Start.AsTime(),

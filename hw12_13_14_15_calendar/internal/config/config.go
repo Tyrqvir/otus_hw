@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -11,7 +12,7 @@ type Config struct {
 	Logger LoggerConf
 	DB     DBConf
 	HTTP   HTTPConf
-	GRPS   GRPSConf
+	GRPC   GRPCConf
 }
 
 type LoggerConf struct {
@@ -31,12 +32,14 @@ type HTTPConf struct {
 	ReadHeaderTimeout time.Duration
 }
 
-type GRPSConf struct {
+type GRPCConf struct {
 	Port string
 }
 
 func NewConfig(configFile string) (*Config, error) {
 	viper.SetConfigFile(configFile)
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("%v: %w", ErrFailedReadConfigFile, err)
@@ -57,8 +60,8 @@ func NewConfig(configFile string) (*Config, error) {
 			WriteTimeout:      viper.GetDuration("http.write_timeout"),
 			ReadHeaderTimeout: viper.GetDuration("http.read_header_timeout"),
 		},
-		GRPSConf{
-			Port: viper.GetString("grps.port"),
+		GRPCConf{
+			Port: viper.GetString("grpc.port"),
 		},
 	}, nil
 }

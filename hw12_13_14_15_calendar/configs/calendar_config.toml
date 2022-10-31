@@ -12,5 +12,5 @@ write_timeout = "10s"
 read_timeout = "10s"
 read_header_timeout = "10s"
 
-[grps]
+[grpc]
 port = ":8889"

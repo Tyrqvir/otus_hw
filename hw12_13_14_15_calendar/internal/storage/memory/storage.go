@@ -32,22 +32,22 @@ func (s *Storage) CreateEvent(_ context.Context, event model.Event) (model.Event
 	return s.incrementedID, nil
 }
 
-func (s *Storage) UpdateEvent(_ context.Context, event model.Event) (int64, error) {
+func (s *Storage) UpdateEvent(_ context.Context, event model.Event) (bool, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.store[event.ID] = event
 
-	return 1, nil
+	return true, nil
 }
 
-func (s *Storage) DeleteEvent(_ context.Context, eventID model.EventID) (int64, error) {
+func (s *Storage) DeleteEvent(_ context.Context, eventID model.EventID) (bool, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	delete(s.store, eventID)
 
-	return 1, nil
+	return true, nil
 }
 
 func (s *Storage) EventsByPeriodForOwner(
