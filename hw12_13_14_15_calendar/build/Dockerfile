@@ -23,7 +23,7 @@ RUN CGO_ENABLED=0 go build \
         -o ${BIN_FILE} ./cmd/${APP_FOLDER}
 
 # На выходе тонкий образ
-FROM scratch
+FROM alpine:latest
 
 ARG CONFIG_FILE_EXTERNAL
 

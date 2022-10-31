@@ -35,7 +35,7 @@ func New(calendarServer eventpb.CalendarServer, logger logger.ILogger, config *c
 		logger:  logger,
 		server:  server,
 		config:  config,
-		address: ":" + config.GRPS.Port,
+		address: config.GRPS.Port,
 	}
 }
 

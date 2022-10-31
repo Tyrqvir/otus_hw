@@ -38,12 +38,12 @@ func (ec *EventCrud) CreateEvent(ctx context.Context, event model.Event) (int64,
 }
 
 func (ec *EventCrud) UpdateEvent(ctx context.Context, event model.Event) (int64, error) {
-	updatedUID, err := ec.eventRepository.UpdateEvent(ctx, event)
+	updatedID, err := ec.eventRepository.UpdateEvent(ctx, event)
 	if err != nil {
 		return 0, err
 	}
 
-	return updatedUID, nil
+	return updatedID, nil
 }
 
 func (ec *EventCrud) DeleteEvent(ctx context.Context, id model.EventID) (int64, error) {

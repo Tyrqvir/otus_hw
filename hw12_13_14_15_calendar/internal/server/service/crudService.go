@@ -38,35 +38,39 @@ func (cs *CalendarServer) CreateEvent(
 	ctx context.Context,
 	request *eventpb.CreateEventRequest,
 ) (*eventpb.CreateEventResponse, error) {
-	uuid, err := cs.crud.CreateEvent(ctx, FromEvent(request.Event))
+	id, err := cs.crud.CreateEvent(ctx, FromEvent(request.CommonEvent))
 	if errors.Is(err, storage.ErrDateBusy) {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
 			"%v : %s",
-			storage.ErrDateBusy, request.Event.StartDate.AsTime(),
+			storage.ErrDateBusy, request.CommonEvent.StartDate.AsTime(),
 		)
 	}
 	if err != nil {
 		return nil, err
 	}
 
-	return &eventpb.CreateEventResponse{InsertedUid: uuid}, nil
+	return &eventpb.CreateEventResponse{InsertedId: id}, nil
 }
 
 func (cs *CalendarServer) UpdateEvent(
 	ctx context.Context,
 	request *eventpb.UpdateEventRequest,
 ) (*eventpb.UpdateEventResponse, error) {
-	updatedUID, err := cs.crud.UpdateEvent(ctx, FromEvent(request.Event))
+	_, err := cs.crud.UpdateEvent(ctx, FromEvent(request.CommonEvent))
 	if errors.Is(err, storage.ErrDateBusy) {
-		return nil, status.Errorf(codes.InvalidArgument, "date %s already busy", request.Event.StartDate.AsTime())
+		return &eventpb.UpdateEventResponse{
+			Updated: 0,
+		}, status.Errorf(codes.InvalidArgument, "date %s already busy", request.CommonEvent.StartDate.AsTime())
 	}
 	if err != nil {
-		return nil, err
+		return &eventpb.UpdateEventResponse{
+			Updated: 0,
+		}, err
 	}
 
 	return &eventpb.UpdateEventResponse{
-		Updated: updatedUID,
+		Updated: 1,
 	}, nil
 }
 
@@ -74,13 +78,13 @@ func (cs *CalendarServer) DeleteEvent(
 	ctx context.Context,
 	request *eventpb.DeleteEventRequest,
 ) (*eventpb.DeleteEventResponse, error) {
-	deletedUID, err := cs.crud.DeleteEvent(ctx, model.EventID(request.Id))
+	deletedID, err := cs.crud.DeleteEvent(ctx, model.EventID(request.Id))
 	if err != nil {
 		return nil, err
 	}
 
 	return &eventpb.DeleteEventResponse{
-		Deleted: deletedUID,
+		Deleted: deletedID,
 	}, nil
 }
 

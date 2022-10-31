@@ -9,11 +9,12 @@ services:
         BIN_FILE: "/opt/calendar/calendar-app"
         APP_FOLDER: "calendar"
         CONFIG_FILE_EXTERNAL: "./configs/calendar_config.toml"
-    restart: unless-stopped
     container_name: calendar
+    environment:
+      STORAGE_DSN : "host=db port=$DB_PORT user=$DB_USER password=$DB_PASSWORD dbname=$DB_NAME sslmode=disable"
     ports:
-      - ${HTTP_PORT}:${HTTP_PORT}
-      - ${GRPS_PORT}:${GRPS_PORT}
+      - ${HTTP_PORT}:8888
+      - ${GRPS_PORT}:8889
     depends_on:
       - db
 
@@ -29,32 +30,20 @@ services:
     depends_on:
       - db
       - broker
-  #
-  #  calendar_sender:
-  #    build:
-  #      context: ./..
-  #      dockerfile: ./build/Dockerfile
-  #      args:
-  #        BIN_FILE: "/opt/calendar/sender-app"
-  #        APP_FOLDER: "calendar_sender"
-  #        CONFIG_FILE_EXTERNAL: "./configs/sender_config.toml"
-  #    restart: unless-stopped
-  #    depends_on:
-  #      - db
-  #      - broker
 
   db:
     image: postgres:${DB_VERSION}
     container_name: db
-    ports:
-      - ${DB_PORT}:${DB_PORT}
-    restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d calendar" ]
+      test: [ "CMD-SHELL", "pg_isready -U $DB_USER -d $DB_NAME" ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -65,35 +54,25 @@ services:
     build:
       context: ./..
       dockerfile: ./build/migration/Dockerfile
-    restart: on-failure
     environment:
       GOOSE_DRIVER: postgres
-      GOOSE_DBSTRING: "host=db port=5432 user=postgres password=megapass dbname=calendar sslmode=disable"
+      GOOSE_DBSTRING: "host=db port=$DB_PORT user=$DB_USER password=$DB_PASSWORD dbname=$DB_NAME sslmode=disable"
     volumes:
       - "../migrations:/migrations"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   adminer:
     image: adminer
+    container_name: adminer
     restart: unless-stopped
     ports:
       - ${ADMINER_PORT}:8080
-
-  broker:
-    image: rabbitmq:3.11.1-management-alpine
-    restart: unless-stopped
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 30s
-      timeout: 30s
-      retries: 3
-    volumes:
-      - broker:/var/lib/rabbitmq/
-      - broker:/var/log/rabbitmq
-    ports:
-      - ${BROKER_ADMIN_PORT}:15672
-      - ${BROKER_PORT}:5672
+    depends_on:
+      - db
 
 volumes:
   broker:
+  postgres-data:
+    name: postgres_data

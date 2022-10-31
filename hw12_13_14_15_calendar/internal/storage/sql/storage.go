@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/storage"
@@ -13,43 +14,43 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const driver = "postgres"
+const (
+	driver       = "postgres"
+	nonUniqIndex = "duplicate key value violates unique constraint"
+)
 
 type Storage struct {
 	db *sqlx.DB
 }
 
 func (s *Storage) CreateEvent(ctx context.Context, event model.Event) (model.EventID, error) {
-	result, err := s.db.NamedExecContext(
-		ctx,
-		`INSERT INTO events (
-                    id,
-                    title,
-                    start_date,
-                    end_date,
-                    description,
-                    owner_id,
-                    notification_date
-                    )
-				VALUES (
-				        :id,
-				        :title,
-				        :start_date,
-				        :end_date,
-				        :description,
-				        :owner_id,
-				        :notification_date
-				        )`, &event)
+	var LastInsertId int
+
+	query := `INSERT INTO events
+    			  (title, start_date, end_date, description, owner_id, notification_date)
+			  VALUES
+			      (:title, :start_date, :end_date, :description, :owner_id, :notification_date)
+			  RETURNING
+			      id
+			  `
+
+	rows, err := s.db.NamedQueryContext(ctx, query, event)
 	if err != nil {
+		if strings.Contains(err.Error(), nonUniqIndex) {
+			return 0, storage.ErrDateBusy
+		}
 		return 0, fmt.Errorf("%v, %w", storage.ErrCantAddEvent, err)
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("%v, %w", storage.ErrNotFound, err)
+	if rows.Next() {
+		err := rows.Scan(&LastInsertId)
+		if err != nil {
+			return 0, fmt.Errorf("%v, %w", storage.ErrNotFound, err)
+		}
 	}
+	defer rows.Close()
 
-	return model.EventID(id), nil
+	return model.EventID(LastInsertId), nil
 }
 
 func (s *Storage) UpdateEvent(ctx context.Context, event model.Event) (int64, error) {
@@ -58,8 +59,8 @@ func (s *Storage) UpdateEvent(ctx context.Context, event model.Event) (int64, er
 		`UPDATE events
 				SET
 				    title=:title,
-				    start_date=:startDate,
-				    end_date=:endDate,
+				    start_date=:start_date,
+				    end_date=:end_date,
 				    description=:description,
 				    notification_date=:notification_date
               	WHERE
@@ -95,7 +96,7 @@ func (s *Storage) EventsByPeriodForOwner(
 		ctx,
 		&result,
 		`SELECT
-    				id, title, start_date, end_date, owner_id, description
+    				id, title, start_date, end_date, owner_id, description, notification_date, is_notified
 				FROM
 				    events
 				WHERE
@@ -131,9 +132,6 @@ func (s *Storage) NoticesByNotificationDate(ctx context.Context, date time.Time)
 		0,
 		date,
 	)
-	if rows.Err() != nil {
-		return nil, fmt.Errorf("rows iteration failed: %w", rows.Err())
-	}
 	if err != nil {
 		return nil, err
 	}
@@ -155,10 +153,14 @@ func (s *Storage) NoticesByNotificationDate(ctx context.Context, date time.Time)
 		notices = append(notices, notice)
 	}
 
+	if rows.Err() != nil {
+		return nil, fmt.Errorf("rows iteration failed: %w", rows.Err())
+	}
+
 	return notices, nil
 }
 
-func (s *Storage) UpdateIsNotified(ctx context.Context, id model.EventID, isNotified byte) error {
+func (s *Storage) UpdateIsNotified(ctx context.Context, id model.EventID, isNotified int64) error {
 	query := `UPDATE events SET is_notified = $1 WHERE id = $2;`
 	_, err := s.db.ExecContext(ctx, query, isNotified, id)
 	if err != nil {
