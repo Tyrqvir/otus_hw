@@ -20,7 +20,7 @@ func TestCalendarServer_CreateEvent(t *testing.T) {
 		ctx := context.Background()
 		insertedID := int64(1)
 
-		repository.On("CreateEvent", ctx, FromEvent(event)).Return(insertedID, nil)
+		repository.On("CreateEvent", ctx, FromEvent(event)).Return(model.EventID(1), nil)
 
 		server := NewCalendarServer(repository)
 		response, err := server.CreateEvent(ctx, &eventpb.CreateEventRequest{CommonEvent: event})
@@ -34,7 +34,7 @@ func TestCalendarServer_CreateEvent(t *testing.T) {
 		ctx := context.Background()
 		event := &eventpb.CommonEvent{}
 
-		repository.On("CreateEvent", ctx, FromEvent(event)).Return(int64(-1), fmt.Errorf("internal error"))
+		repository.On("CreateEvent", ctx, FromEvent(event)).Return(model.EventID(-1), fmt.Errorf("internal error"))
 
 		server := NewCalendarServer(repository)
 		response, err := server.CreateEvent(ctx, &eventpb.CreateEventRequest{CommonEvent: event})
@@ -48,10 +48,9 @@ func TestCalendarServer_DeleteEvent(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		repository := &mocks.IEventRepository{}
 		ctx := context.Background()
-		rows := int64(1)
 		eventID := int64(1)
 
-		repository.On("DeleteEvent", ctx, model.EventID(1)).Return(rows, nil)
+		repository.On("DeleteEvent", ctx, model.EventID(1)).Return(true, nil)
 
 		server := NewCalendarServer(repository)
 		_, err := server.DeleteEvent(ctx, &eventpb.DeleteEventRequest{Id: eventID})
@@ -63,9 +62,7 @@ func TestCalendarServer_DeleteEvent(t *testing.T) {
 		repository := &mocks.IEventRepository{}
 		ctx := context.Background()
 
-		deletedID := int64(1)
-
-		repository.On("DeleteEvent", ctx, model.EventID(1)).Return(deletedID, fmt.Errorf("error"))
+		repository.On("DeleteEvent", ctx, model.EventID(1)).Return(false, fmt.Errorf("error"))
 
 		server := NewCalendarServer(repository)
 		_, err := server.DeleteEvent(ctx, &eventpb.DeleteEventRequest{Id: int64(1)})
@@ -79,9 +76,8 @@ func TestCalendarServer_UpdateEvent(t *testing.T) {
 		repository := &mocks.IEventRepository{}
 		ctx := context.Background()
 		event := &eventpb.CommonEvent{}
-		updatedID := int64(1)
 
-		repository.On("UpdateEvent", ctx, FromEvent(event)).Return(updatedID, nil)
+		repository.On("UpdateEvent", ctx, FromEvent(event)).Return(true, nil)
 
 		server := NewCalendarServer(repository)
 		_, err := server.UpdateEvent(ctx, &eventpb.UpdateEventRequest{CommonEvent: event})
