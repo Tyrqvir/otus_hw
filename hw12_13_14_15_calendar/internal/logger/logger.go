@@ -19,7 +19,9 @@ const (
 
 type ILogger interface {
 	Info(string, ...interface{})
+	Infof(string, ...interface{})
 	Error(string, ...interface{})
+	Errorf(string, ...interface{})
 	Debug(string, ...interface{})
 	Warn(string, ...interface{})
 	GetInstance() *zap.Logger
@@ -80,8 +82,16 @@ func (l *Logger) Info(s string, i ...interface{}) {
 	l.instance.Sugar().Infow(s, i...)
 }
 
+func (l *Logger) Infof(pattern string, i ...interface{}) {
+	l.instance.Sugar().Infof(pattern, i...)
+}
+
 func (l *Logger) Error(s string, i ...interface{}) {
 	l.instance.Sugar().Errorw(s, i...)
+}
+
+func (l *Logger) Errorf(s string, i ...interface{}) {
+	l.instance.Sugar().Errorf(s, i...)
 }
 
 func (l *Logger) Debug(s string, i ...interface{}) {

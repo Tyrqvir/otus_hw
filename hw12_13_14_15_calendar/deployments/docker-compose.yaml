@@ -9,29 +9,57 @@ services:
         BIN_FILE: "/opt/calendar/calendar-app"
         APP_FOLDER: "calendar"
         CONFIG_FILE_EXTERNAL: "./configs/calendar_config.toml"
-    restart: unless-stopped
     container_name: calendar
+    environment:
+      STORAGE_DSN : "host=db port=$DB_PORT user=$DB_USER password=$DB_PASSWORD dbname=$DB_NAME sslmode=disable"
     ports:
-      - ${HTTP_PORT}:${HTTP_PORT}
-      - ${GRPS_PORT}:${GRPS_PORT}
+      - ${HTTP_PORT}:8888
+      - ${GRPS_PORT}:8889
     depends_on:
       - db
 
   db:
     image: postgres:${DB_VERSION}
     container_name: db
-    ports:
-      - ${DB_PORT}:${DB_PORT}
-    restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d calendar" ]
+      test: [ "CMD-SHELL", "pg_isready -U $DB_USER -d $DB_NAME" ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+
+  migration:
+    container_name: migration
+    build:
+      context: ./..
+      dockerfile: ./build/migration/Dockerfile
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: "host=db port=$DB_PORT user=$DB_USER password=$DB_PASSWORD dbname=$DB_NAME sslmode=disable"
     volumes:
-      - ./migrations/schema:/docker-entrypoint-initdb.d
+      - "../migrations:/migrations"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: unless-stopped
+    ports:
+      - ${ADMINER_PORT}:8080
+    depends_on:
+      - db
+
+volumes:
+  broker:
+  postgres-data:
+    name: postgres_data

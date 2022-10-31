@@ -1,0 +1,16 @@
+[logger]
+level = "debug" # should be "info", "warn", "info", "error". See logger.go in logger package
+
+[storage]
+provider = "sql" # should be "sql", "in-memory"
+DSN = "host=0.0.0.0 port=5432 user=postgres password=megapass dbname=calendar sslmode=disable"
+
+[http]
+host = "0.0.0.0"
+port = "8888"
+write_timeout = "10s"
+read_timeout = "10s"
+read_header_timeout = "10s"
+
+[grps]
+port = ":8889"

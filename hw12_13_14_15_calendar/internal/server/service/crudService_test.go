@@ -16,28 +16,28 @@ import (
 func TestCalendarServer_CreateEvent(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		eventCRUD := &mocks.IEventCrud{}
-		event := &eventpb.Event{}
+		event := &eventpb.CommonEvent{}
 		ctx := context.Background()
-		insertedUID := int64(1)
+		insertedID := int64(1)
 
-		eventCRUD.On("CreateEvent", ctx, FromEvent(event)).Return(insertedUID, nil)
+		eventCRUD.On("CreateEvent", ctx, FromEvent(event)).Return(insertedID, nil)
 
 		server := NewCalendarServer(eventCRUD)
-		response, err := server.CreateEvent(ctx, &eventpb.CreateEventRequest{Event: event})
+		response, err := server.CreateEvent(ctx, &eventpb.CreateEventRequest{CommonEvent: event})
 
 		require.NoError(t, err)
-		require.Equal(t, insertedUID, response.InsertedUid)
+		require.Equal(t, insertedID, response.InsertedId)
 	})
 
 	t.Run("error", func(t *testing.T) {
 		eventCRUD := &mocks.IEventCrud{}
 		ctx := context.Background()
-		event := &eventpb.Event{}
+		event := &eventpb.CommonEvent{}
 
 		eventCRUD.On("CreateEvent", ctx, FromEvent(event)).Return(int64(-1), fmt.Errorf("internal error"))
 
 		server := NewCalendarServer(eventCRUD)
-		response, err := server.CreateEvent(ctx, &eventpb.CreateEventRequest{Event: event})
+		response, err := server.CreateEvent(ctx, &eventpb.CreateEventRequest{CommonEvent: event})
 
 		require.Error(t, err)
 		require.Nil(t, response)
@@ -63,9 +63,9 @@ func TestCalendarServer_DeleteEvent(t *testing.T) {
 		eventCRUD := &mocks.IEventCrud{}
 		ctx := context.Background()
 
-		deletedUID := int64(1)
+		deletedID := int64(1)
 
-		eventCRUD.On("DeleteEvent", ctx, model.EventID(1)).Return(deletedUID, fmt.Errorf("error"))
+		eventCRUD.On("DeleteEvent", ctx, model.EventID(1)).Return(deletedID, fmt.Errorf("error"))
 
 		server := NewCalendarServer(eventCRUD)
 		_, err := server.DeleteEvent(ctx, &eventpb.DeleteEventRequest{Id: int64(1)})
@@ -78,13 +78,13 @@ func TestCalendarServer_UpdateEvent(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		eventCRUD := &mocks.IEventCrud{}
 		ctx := context.Background()
-		event := &eventpb.Event{}
-		updatedUID := int64(1)
+		event := &eventpb.CommonEvent{}
+		updatedID := int64(1)
 
-		eventCRUD.On("UpdateEvent", ctx, FromEvent(event)).Return(updatedUID, nil)
+		eventCRUD.On("UpdateEvent", ctx, FromEvent(event)).Return(updatedID, nil)
 
 		server := NewCalendarServer(eventCRUD)
-		_, err := server.UpdateEvent(ctx, &eventpb.UpdateEventRequest{Event: event})
+		_, err := server.UpdateEvent(ctx, &eventpb.UpdateEventRequest{CommonEvent: event})
 
 		require.NoError(t, err)
 	})
@@ -101,16 +101,16 @@ func TestCalendarServer_EventsByPeriodAndOwner(t *testing.T) {
 
 		items := []model.Event{
 			{
-				ID:      1,
-				OwnerID: 1,
-				Start:   startData,
-				End:     endData,
+				ID:        1,
+				OwnerID:   1,
+				StartDate: startData,
+				EndDate:   endData,
 			},
 			{
-				ID:      2,
-				OwnerID: 1,
-				Start:   startData,
-				End:     endData,
+				ID:        2,
+				OwnerID:   1,
+				StartDate: startData,
+				EndDate:   endData,
 			},
 		}
 
