@@ -215,7 +215,6 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 
 func TestMain(m *testing.M) {
 	flag.Parse()
-
 	format := "progress"
 	for _, arg := range os.Args[1:] {
 		if arg == "-test.v=true" { // go test transforms -v option

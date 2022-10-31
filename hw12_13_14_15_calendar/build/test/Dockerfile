@@ -12,3 +12,5 @@ COPY go.sum .
 RUN go mod download
 
 COPY ./tests/integration .
+
+ENTRYPOINT ["go", "test", "-v"]

@@ -12,6 +12,8 @@ services:
       STORAGE_DSN: "host=db port=$DB_PORT user=$DB_USER password=$DB_PASSWORD dbname=$DB_NAME sslmode=disable"
       HTTP_HOST: "calendar"
     depends_on:
+      - db
+      - broker
       - calendar
       - calendar_scheduler
       - calendar_sender

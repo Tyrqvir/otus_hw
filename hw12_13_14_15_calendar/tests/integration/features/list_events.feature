@@ -10,18 +10,20 @@ Feature: show list of events
     And the response should match json:
     """
     {
-     "events": [
-       {
-            "id": "1",
-            "title": "title 1",
-            "start_date": "2022-01-01T00:00:00Z",
-            "end_date": "2022-02-01T00:00:00Z",
-            "description": "description 1",
-            "owner_id": "1",
-            "notification_date": "2022-01-02T00:00:00Z"
-        }
-     ]
-    }
+      "events": [
+          {
+              "id": "1",
+              "common_event": {
+                  "title": "title 1",
+                  "start_date": "2022-01-01T00:00:00Z",
+                  "end_date": "2022-02-01T00:00:00Z",
+                  "description": "description 1",
+                  "owner_id": "1",
+                  "notification_date": "2022-01-02T00:00:00Z"
+              }
+          }
+      ]
+  }
     """
 
   Scenario: events as list of day
@@ -41,23 +43,25 @@ Feature: show list of events
     And the response body has 9 items
 
   Scenario: events has flag as already sent
-    When I wait 2s
+    When I wait 4s
     Then I send "GET" request to "/v1/events/period/2022-01-01T00:00:00Z/2022-01-01T23:59:00Z/owner/1"
     And the response should match json:
     """
     {
-     "events": [
-       {
-            "id": "1",
-            "title": "title 1",
-            "start_date": "2022-01-01T00:00:00Z",
-            "end_date": "2022-02-01T00:00:00Z",
-            "description": "description 1",
-            "owner_id": "1",
-            "is_notified": "1",
-            "notification_date": "2022-01-02T00:00:00Z"
-        }
-     ]
+        "events": [
+            {
+                "id": "1",
+                "common_event": {
+                    "title": "title 1",
+                    "start_date": "2022-01-01T00:00:00Z",
+                    "end_date": "2022-02-01T00:00:00Z",
+                    "description": "description 1",
+                    "owner_id": "1",
+                    "is_notified": "1",
+                    "notification_date": "2022-01-02T00:00:00Z"
+                }
+            }
+        ]
     }
     """
 
