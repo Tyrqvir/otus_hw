@@ -8,20 +8,21 @@ import (
 
 func ToEvent(event model.Event) *eventpb.Event {
 	return &eventpb.Event{
-		Id:               int64(event.ID),
-		Title:            event.Title,
-		Description:      event.Description,
-		StartDate:        timestamppb.New(event.StartDate),
-		EndDate:          timestamppb.New(event.EndDate),
-		OwnerId:          int64(event.OwnerID),
-		NotificationDate: timestamppb.New(event.NotificationDate),
-		IsNotified:       event.IsNotified,
+		Id: int64(event.ID),
+		CommonEvent: &eventpb.CommonEvent{
+			Title:            event.Title,
+			Description:      event.Description,
+			StartDate:        timestamppb.New(event.StartDate),
+			EndDate:          timestamppb.New(event.EndDate),
+			OwnerId:          int64(event.OwnerID),
+			NotificationDate: timestamppb.New(event.NotificationDate),
+			IsNotified:       event.IsNotified,
+		},
 	}
 }
 
-func FromEvent(event *eventpb.Event) model.Event {
+func FromEvent(event *eventpb.CommonEvent) model.Event {
 	return model.Event{
-		ID:               model.EventID(event.Id),
 		Title:            event.Title,
 		Description:      event.Description,
 		StartDate:        event.StartDate.AsTime(),

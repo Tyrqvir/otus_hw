@@ -6,28 +6,32 @@ option go_package = ".;eventpb";
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 
-message Event {
+message CommonEvent{
+  string title = 1;
+  google.protobuf.Timestamp start_date= 2;
+  google.protobuf.Timestamp end_date = 3;
+  string description = 4;
+  int64 owner_id = 5;
+  google.protobuf.Timestamp notification_date = 6;
+  int64 is_notified = 7;
+}
+
+message Event{
   int64 id = 1;
-  string title = 2;
-  google.protobuf.Timestamp start_date= 3;
-  google.protobuf.Timestamp end_date = 4;
-  string description = 5;
-  int64 owner_id = 6;
-  google.protobuf.Timestamp notification_date = 7;
-  int64 is_notified = 8;
+  CommonEvent common_event = 2;
 }
 
 message CreateEventRequest {
-  Event event = 1;
+  CommonEvent common_event = 1;
 }
 
 message CreateEventResponse {
-  int64 inserted_uid = 1;
+  int64 inserted_id = 1;
 }
 
 message UpdateEventRequest {
   int64 id = 1;
-  Event event = 2;
+  CommonEvent common_event = 2;
 }
 
 message UpdateEventResponse {
