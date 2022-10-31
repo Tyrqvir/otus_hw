@@ -63,26 +63,28 @@ func (p *Producer) Publish(ctx context.Context, body []byte) error {
 
 	p.logger.Info("declared Exchange, publishing messages")
 
-	for {
-		p.logger.Infof("publishing %dB body (%q)", len(body), body)
+	p.logger.Infof("publishing %dB body (%q)", len(body), body)
 
-		if err := channel.PublishWithContext(ctx,
-			p.exchangeName, // publish to an exchangeName
-			p.routingKey,   // routing to 0 or more queues
-			false,          // mandatory
-			false,          // immediate
-			amqp.Publishing{
-				Headers:      amqp.Table{},
-				ContentType:  "application/json",
-				Body:         body,
-				DeliveryMode: amqp.Transient, // 1=non-persistent, 2=persistent
-				Priority:     0,              // 0-9
-				// a bunch of application/implementation-specific fields
-			},
-		); err != nil {
-			return fmt.Errorf("exchange Publish: %w", err)
-		}
+	err = channel.PublishWithContext(ctx,
+		p.exchangeName, // publish to an exchangeName
+		p.routingKey,   // routing to 0 or more queues
+		false,          // mandatory
+		false,          // immediate
+		amqp.Publishing{
+			Headers:      amqp.Table{},
+			ContentType:  "application/json",
+			Body:         body,
+			DeliveryMode: amqp.Transient, // 1=non-persistent, 2=persistent
+			Priority:     0,              // 0-9
+			// a bunch of application/implementation-specific fields
+		},
+	)
 
-		p.logger.Infof("published %dB OK", len(body))
+	if err != nil {
+		return fmt.Errorf("exchange Publish: %w", err)
 	}
+
+	p.logger.Infof("published %dB OK", len(body))
+
+	return nil
 }

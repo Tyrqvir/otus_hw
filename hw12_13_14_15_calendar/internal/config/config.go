@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -60,6 +61,8 @@ type ScheduleConf struct {
 
 func NewConfig(configFile string) (*Config, error) {
 	viper.SetConfigFile(configFile)
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("%v: %w", ErrFailedReadConfigFile, err)
