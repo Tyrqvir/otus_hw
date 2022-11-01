@@ -9,9 +9,8 @@ package main
 import (
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/repository"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/server"
-	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/server/grps"
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/server/grpc"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/server/rest"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/server/service"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/storage/factory"
@@ -19,19 +18,18 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeDIForServer(config2 *config.Config, logger2 logger.ILogger) (*server.Server, error) {
+func setupWire(config2 *config.Config, logger2 logger.ILogger) (*server.Server, error) {
 	iEventRepository, err := factory.MakeStorage(config2)
 	if err != nil {
 		return nil, err
 	}
-	eventCrud := repository.NewEventCrud(iEventRepository)
-	calendarServer := service.NewCalendarServer(eventCrud)
-	grpsServer := grps.New(calendarServer, logger2, config2)
+	calendarServer := service.NewCalendarServer(iEventRepository)
+	grpcServer := grpc.New(calendarServer, logger2, config2)
 	handler, err := rest.NewHandler(config2, logger2)
 	if err != nil {
 		return nil, err
 	}
 	restServer := rest.New(handler, logger2, config2)
-	serverServer := server.NewServerAggregator(grpsServer, restServer, logger2)
+	serverServer := server.NewServerAggregator(grpcServer, restServer, logger2)
 	return serverServer, nil
 }

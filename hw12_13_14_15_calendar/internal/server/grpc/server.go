@@ -1,6 +1,7 @@
-package grps
+package grpc
 
 import (
+	"context"
 	"fmt"
 	"net"
 
@@ -13,6 +14,9 @@ import (
 	"google.golang.org/grpc"
 )
 
+//nolint:lll
+//go:generate protoc -I ../../../api --go_out=../../../api/eventpb --go_opt=paths=source_relative --go-grpc_out=../../../api/eventpb ../../../api/EventService.proto
+//go:generate protoc -I ../../../api --grpc-gateway_out=../../../api/eventpb --grpc-gateway_opt logtostderr=true --grpc-gateway_opt generate_unbound_methods=true ../../../api/EventService.proto
 type Server struct {
 	server  *grpc.Server
 	address string
@@ -35,12 +39,14 @@ func New(calendarServer eventpb.CalendarServer, logger logger.ILogger, config *c
 		logger:  logger,
 		server:  server,
 		config:  config,
-		address: config.GRPS.Port,
+		address: config.GRPC.Port,
 	}
 }
 
-func (s *Server) Start() error {
-	listener, err := net.Listen("tcp", s.address)
+func (s *Server) Start(ctx context.Context) error {
+	listenConfig := net.ListenConfig{}
+
+	listener, err := listenConfig.Listen(ctx, "tcp", s.address)
 	if err != nil {
 		return fmt.Errorf("start grpc server failed: %w", err)
 	}

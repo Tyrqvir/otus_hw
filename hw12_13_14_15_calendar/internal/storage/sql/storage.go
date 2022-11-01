@@ -53,7 +53,7 @@ func (s *Storage) CreateEvent(ctx context.Context, event model.Event) (model.Eve
 	return model.EventID(LastInsertId), nil
 }
 
-func (s *Storage) UpdateEvent(ctx context.Context, event model.Event) (int64, error) {
+func (s *Storage) UpdateEvent(ctx context.Context, event model.Event) (bool, error) {
 	_, err := s.db.NamedExecContext(
 		ctx,
 		`UPDATE events
@@ -66,23 +66,23 @@ func (s *Storage) UpdateEvent(ctx context.Context, event model.Event) (int64, er
               	WHERE
               	    id = :id`, &event)
 	if err != nil {
-		return 1, fmt.Errorf("%v, %w", storage.ErrCantUpdateEvent, err)
+		return false, fmt.Errorf("%v, %w", storage.ErrCantUpdateEvent, err)
 	}
-	return 0, nil
+	return true, nil
 }
 
-func (s *Storage) DeleteEvent(ctx context.Context, eventID model.EventID) (int64, error) {
+func (s *Storage) DeleteEvent(ctx context.Context, eventID model.EventID) (bool, error) {
 	result, err := s.db.ExecContext(ctx, "DELETE FROM events WHERE id=$1", eventID)
 
 	if count, err := result.RowsAffected(); count == 0 {
 		if err != nil {
-			return 0, fmt.Errorf("can't get rows, %w", sql.ErrNoRows)
+			return false, fmt.Errorf("can't get rows, %w", sql.ErrNoRows)
 		}
 
-		return 0, fmt.Errorf("events: %w", storage.ErrNotFound)
+		return false, fmt.Errorf("events: %w", storage.ErrNotFound)
 	}
 
-	return 1, fmt.Errorf("%v, %w", storage.ErrCantDeleteEvent, err)
+	return true, fmt.Errorf("%v, %w", storage.ErrCantDeleteEvent, err)
 }
 
 func (s *Storage) EventsByPeriodForOwner(
