@@ -34,7 +34,7 @@ func main() {
 
 	logger := globalLogger.New(cfg.Logger.Level)
 
-	server, err := InitializeDIForServer(cfg, logger)
+	server, err := setupWire(cfg, logger)
 	if err != nil {
 		log.Fatalln(err)
 	}

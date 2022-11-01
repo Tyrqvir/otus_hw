@@ -35,7 +35,7 @@ message UpdateEventRequest {
 }
 
 message UpdateEventResponse {
-  int64 updated = 1;
+  bool updated = 1;
 }
 
 message DeleteEventRequest {
@@ -43,7 +43,7 @@ message DeleteEventRequest {
 }
 
 message DeleteEventResponse {
-  int64 deleted = 1;
+  bool deleted = 1;
 }
 
 message EventListRequest {

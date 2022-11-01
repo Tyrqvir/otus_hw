@@ -6,13 +6,10 @@ import (
 	"time"
 
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/logger"
-	grpc "github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/server/grps"
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/server/grpc"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/server/rest"
 )
 
-//nolint:lll
-//go:generate protoc -I ../../api --go_out=../../api/eventpb --go_opt=paths=source_relative --go-grpc_out=../../api/eventpb ../../api/EventService.proto
-//go:generate protoc -I ../../api --grpc-gateway_out=../../api/eventpb --grpc-gateway_opt logtostderr=true --grpc-gateway_opt generate_unbound_methods=true ../../api/EventService.proto
 type Server struct {
 	GRPC   *grpc.Server
 	HTTP   *rest.Server
@@ -32,13 +29,13 @@ func (s *Server) Run(ctx context.Context, stop context.CancelFunc) {
 
 	s.startHTTP(ctx, stop)
 
-	s.startGRPS(ctx, stop)
+	s.startGRPC(ctx, stop)
 }
 
-func (s *Server) startGRPS(ctx context.Context, stop context.CancelFunc) {
+func (s *Server) startGRPC(ctx context.Context, stop context.CancelFunc) {
 	go func() {
-		if err := s.GRPC.Start(); err != nil {
-			s.logger.Error("failed to start grps server: " + err.Error())
+		if err := s.GRPC.Start(ctx); err != nil {
+			s.logger.Error("failed to start grpс server: " + err.Error())
 			stop()
 			os.Exit(1)
 		}

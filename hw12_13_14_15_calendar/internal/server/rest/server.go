@@ -32,16 +32,24 @@ func New(h http.Handler, logger logger.ILogger, config *config.Config) *Server {
 func (s *Server) Start(ctx context.Context) error {
 	s.logger.Info("start http server...")
 
-	err := s.httpServer.ListenAndServe()
+	listenConfig := net.ListenConfig{}
+
+	listener, err := listenConfig.Listen(ctx, "tcp", s.httpServer.Addr)
 	if err != nil {
 		if errors.Is(err, http.ErrServerClosed) {
 			return nil
 		}
 
-		return fmt.Errorf("can't start http server, %w", err)
+		return fmt.Errorf("can't start lister http server, %w", err)
+	}
+
+	err = s.httpServer.Serve(listener)
+	if err != nil {
+		return fmt.Errorf("can't start serve http server, %w", err)
 	}
 
 	<-ctx.Done()
+
 	return nil
 }
 

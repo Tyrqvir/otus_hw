@@ -15,14 +15,14 @@ import (
 
 func TestCalendarServer_CreateEvent(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		eventCRUD := &mocks.IEventCrud{}
+		repository := &mocks.IEventRepository{}
 		event := &eventpb.CommonEvent{}
 		ctx := context.Background()
 		insertedID := int64(1)
 
-		eventCRUD.On("CreateEvent", ctx, FromEvent(event)).Return(insertedID, nil)
+		repository.On("CreateEvent", ctx, FromEvent(event)).Return(model.EventID(1), nil)
 
-		server := NewCalendarServer(eventCRUD)
+		server := NewCalendarServer(repository)
 		response, err := server.CreateEvent(ctx, &eventpb.CreateEventRequest{CommonEvent: event})
 
 		require.NoError(t, err)
@@ -30,13 +30,13 @@ func TestCalendarServer_CreateEvent(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		eventCRUD := &mocks.IEventCrud{}
+		repository := &mocks.IEventRepository{}
 		ctx := context.Background()
 		event := &eventpb.CommonEvent{}
 
-		eventCRUD.On("CreateEvent", ctx, FromEvent(event)).Return(int64(-1), fmt.Errorf("internal error"))
+		repository.On("CreateEvent", ctx, FromEvent(event)).Return(model.EventID(-1), fmt.Errorf("internal error"))
 
-		server := NewCalendarServer(eventCRUD)
+		server := NewCalendarServer(repository)
 		response, err := server.CreateEvent(ctx, &eventpb.CreateEventRequest{CommonEvent: event})
 
 		require.Error(t, err)
@@ -46,28 +46,25 @@ func TestCalendarServer_CreateEvent(t *testing.T) {
 
 func TestCalendarServer_DeleteEvent(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		eventCRUD := &mocks.IEventCrud{}
+		repository := &mocks.IEventRepository{}
 		ctx := context.Background()
-		rows := int64(1)
 		eventID := int64(1)
 
-		eventCRUD.On("DeleteEvent", ctx, model.EventID(1)).Return(rows, nil)
+		repository.On("DeleteEvent", ctx, model.EventID(1)).Return(true, nil)
 
-		server := NewCalendarServer(eventCRUD)
+		server := NewCalendarServer(repository)
 		_, err := server.DeleteEvent(ctx, &eventpb.DeleteEventRequest{Id: eventID})
 
 		require.NoError(t, err)
 	})
 
 	t.Run("error", func(t *testing.T) {
-		eventCRUD := &mocks.IEventCrud{}
+		repository := &mocks.IEventRepository{}
 		ctx := context.Background()
 
-		deletedID := int64(1)
+		repository.On("DeleteEvent", ctx, model.EventID(1)).Return(false, fmt.Errorf("error"))
 
-		eventCRUD.On("DeleteEvent", ctx, model.EventID(1)).Return(deletedID, fmt.Errorf("error"))
-
-		server := NewCalendarServer(eventCRUD)
+		server := NewCalendarServer(repository)
 		_, err := server.DeleteEvent(ctx, &eventpb.DeleteEventRequest{Id: int64(1)})
 
 		require.Error(t, err)
@@ -76,14 +73,13 @@ func TestCalendarServer_DeleteEvent(t *testing.T) {
 
 func TestCalendarServer_UpdateEvent(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		eventCRUD := &mocks.IEventCrud{}
+		repository := &mocks.IEventRepository{}
 		ctx := context.Background()
 		event := &eventpb.CommonEvent{}
-		updatedID := int64(1)
 
-		eventCRUD.On("UpdateEvent", ctx, FromEvent(event)).Return(updatedID, nil)
+		repository.On("UpdateEvent", ctx, FromEvent(event)).Return(true, nil)
 
-		server := NewCalendarServer(eventCRUD)
+		server := NewCalendarServer(repository)
 		_, err := server.UpdateEvent(ctx, &eventpb.UpdateEventRequest{CommonEvent: event})
 
 		require.NoError(t, err)
@@ -92,7 +88,7 @@ func TestCalendarServer_UpdateEvent(t *testing.T) {
 
 func TestCalendarServer_EventsByPeriodAndOwner(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		eventCRUD := &mocks.IEventCrud{}
+		repository := &mocks.IEventRepository{}
 
 		currentTime := timestamppb.Now()
 
@@ -115,9 +111,9 @@ func TestCalendarServer_EventsByPeriodAndOwner(t *testing.T) {
 		}
 
 		ctx := context.Background()
-		eventCRUD.On("EventsByPeriodForOwner", ctx, model.OwnerID(1), startData, endData).Return(items, nil)
+		repository.On("EventsByPeriodForOwner", ctx, model.OwnerID(1), startData, endData).Return(items, nil)
 
-		server := NewCalendarServer(eventCRUD)
+		server := NewCalendarServer(repository)
 		foundedEvents, err := server.EventsByPeriodAndOwner(ctx, &eventpb.EventListRequest{
 			Owner: 1,
 			Start: currentTime,

@@ -26,7 +26,7 @@ func NewHandler(config *config.Config, logger logger.ILogger) (http.Handler, err
 	err := eventpb.RegisterCalendarHandlerFromEndpoint(
 		context.Background(),
 		gw,
-		config.GRPS.Port,
+		config.GRPC.Port,
 		opts,
 	)
 	if err != nil {

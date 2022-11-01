@@ -12,7 +12,7 @@ type Config struct {
 	Logger    LoggerConf
 	DB        DBConf
 	HTTP      HTTPConf
-	GRPS      GRPSConf
+	GRPC      GRPCConf
 	Publisher PublisherConf
 	Consumer  ConsumerConf
 	Schedule  ScheduleConf
@@ -35,7 +35,7 @@ type HTTPConf struct {
 	ReadHeaderTimeout time.Duration
 }
 
-type GRPSConf struct {
+type GRPCConf struct {
 	Port string
 }
 
@@ -83,8 +83,8 @@ func NewConfig(configFile string) (*Config, error) {
 			WriteTimeout:      viper.GetDuration("http.write_timeout"),
 			ReadHeaderTimeout: viper.GetDuration("http.read_header_timeout"),
 		},
-		GRPSConf{
-			Port: viper.GetString("grps.port"),
+		GRPCConf{
+			Port: viper.GetString("grpc.port"),
 		},
 		PublisherConf{
 			Dsn:          viper.GetString("publisher.dsn"),
