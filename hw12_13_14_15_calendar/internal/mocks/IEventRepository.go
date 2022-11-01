@@ -16,20 +16,20 @@ type IEventRepository struct {
 	mock.Mock
 }
 
-// CreateEvent provides a mock function with given fields: ctx, event
-func (_m *IEventRepository) CreateEvent(ctx context.Context, event model.Event) (model.EventID, error) {
-	ret := _m.Called(ctx, event)
+// CreateEvent provides a mock function with given fields: ctx, e
+func (_m *IEventRepository) CreateEvent(ctx context.Context, e model.Event) (model.EventID, error) {
+	ret := _m.Called(ctx, e)
 
 	var r0 model.EventID
 	if rf, ok := ret.Get(0).(func(context.Context, model.Event) model.EventID); ok {
-		r0 = rf(ctx, event)
+		r0 = rf(ctx, e)
 	} else {
 		r0 = ret.Get(0).(model.EventID)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, model.Event) error); ok {
-		r1 = rf(ctx, event)
+		r1 = rf(ctx, e)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -37,20 +37,20 @@ func (_m *IEventRepository) CreateEvent(ctx context.Context, event model.Event) 
 	return r0, r1
 }
 
-// DeleteEvent provides a mock function with given fields: ctx, id
-func (_m *IEventRepository) DeleteEvent(ctx context.Context, id model.EventID) (bool, error) {
-	ret := _m.Called(ctx, id)
+// DeleteEvent provides a mock function with given fields: ctx, eID
+func (_m *IEventRepository) DeleteEvent(ctx context.Context, eID model.EventID) (bool, error) {
+	ret := _m.Called(ctx, eID)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(context.Context, model.EventID) bool); ok {
-		r0 = rf(ctx, id)
+		r0 = rf(ctx, eID)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, model.EventID) error); ok {
-		r1 = rf(ctx, id)
+		r1 = rf(ctx, eID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -58,13 +58,13 @@ func (_m *IEventRepository) DeleteEvent(ctx context.Context, id model.EventID) (
 	return r0, r1
 }
 
-// EventsByPeriodForOwner provides a mock function with given fields: ctx, ownerID, start, end
-func (_m *IEventRepository) EventsByPeriodForOwner(ctx context.Context, ownerID model.OwnerID, start time.Time, end time.Time) ([]model.Event, error) {
-	ret := _m.Called(ctx, ownerID, start, end)
+// EventsByPeriodForOwner provides a mock function with given fields: ctx, ownerID, startDate, endDate
+func (_m *IEventRepository) EventsByPeriodForOwner(ctx context.Context, ownerID model.OwnerID, startDate time.Time, endDate time.Time) ([]model.Event, error) {
+	ret := _m.Called(ctx, ownerID, startDate, endDate)
 
 	var r0 []model.Event
 	if rf, ok := ret.Get(0).(func(context.Context, model.OwnerID, time.Time, time.Time) []model.Event); ok {
-		r0 = rf(ctx, ownerID, start, end)
+		r0 = rf(ctx, ownerID, startDate, endDate)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]model.Event)
@@ -73,7 +73,7 @@ func (_m *IEventRepository) EventsByPeriodForOwner(ctx context.Context, ownerID 
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, model.OwnerID, time.Time, time.Time) error); ok {
-		r1 = rf(ctx, ownerID, start, end)
+		r1 = rf(ctx, ownerID, startDate, endDate)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -81,25 +81,76 @@ func (_m *IEventRepository) EventsByPeriodForOwner(ctx context.Context, ownerID 
 	return r0, r1
 }
 
-// UpdateEvent provides a mock function with given fields: ctx, event
-func (_m *IEventRepository) UpdateEvent(ctx context.Context, event model.Event) (bool, error) {
-	ret := _m.Called(ctx, event)
+// NoticesByNotificationDate provides a mock function with given fields: ctx, date
+func (_m *IEventRepository) NoticesByNotificationDate(ctx context.Context, date time.Time) ([]model.Notice, error) {
+	ret := _m.Called(ctx, date)
+
+	var r0 []model.Notice
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time) []model.Notice); ok {
+		r0 = rf(ctx, date)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.Notice)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, time.Time) error); ok {
+		r1 = rf(ctx, date)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// TruncateOlderEvents provides a mock function with given fields: ctx, date
+func (_m *IEventRepository) TruncateOlderEvents(ctx context.Context, date time.Time) error {
+	ret := _m.Called(ctx, date)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time) error); ok {
+		r0 = rf(ctx, date)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UpdateEvent provides a mock function with given fields: ctx, e
+func (_m *IEventRepository) UpdateEvent(ctx context.Context, e model.Event) (bool, error) {
+	ret := _m.Called(ctx, e)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(context.Context, model.Event) bool); ok {
-		r0 = rf(ctx, event)
+		r0 = rf(ctx, e)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, model.Event) error); ok {
-		r1 = rf(ctx, event)
+		r1 = rf(ctx, e)
 	} else {
 		r1 = ret.Error(1)
 	}
 
 	return r0, r1
+}
+
+// UpdateIsNotified provides a mock function with given fields: ctx, id, isNotified
+func (_m *IEventRepository) UpdateIsNotified(ctx context.Context, id model.EventID, isNotified int64) error {
+	ret := _m.Called(ctx, id, isNotified)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, model.EventID, int64) error); ok {
+		r0 = rf(ctx, id, isNotified)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 type mockConstructorTestingTNewIEventRepository interface {

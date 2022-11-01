@@ -24,5 +24,4 @@ type EventRepository struct {
 
 func NewEventRepository() *EventRepository {
 	return &EventRepository{}
-
 }
