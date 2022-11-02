@@ -15,7 +15,7 @@ import (
 	"github.com/google/wire"
 )
 
-func setupWire(config *config.Config, logger logger.ILogger) (*server.Server, error) {
+func setupWire(config *config.Config, logger logger.Logger) (*server.Server, error) {
 	wire.Build(
 		wire.Bind(new(eventpb.CalendarServer), new(*service.CalendarServer)),
 		service.NewCalendarServer,

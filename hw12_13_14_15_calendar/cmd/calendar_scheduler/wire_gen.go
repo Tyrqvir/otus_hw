@@ -16,12 +16,12 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeDIForScheduler(config2 *config.Config, logger2 logger.ILogger) (*scheduler.Scheduler, error) {
+func InitializeDIForScheduler(config2 *config.Config, logger2 logger.Logger) (*scheduler.Scheduler, error) {
 	producer := broker.NewProducer(config2, logger2)
-	iEventRepository, err := factory.MakeStorage(config2)
+	eventRepository, err := factory.MakeStorage(config2)
 	if err != nil {
 		return nil, err
 	}
-	schedulerScheduler := scheduler.New(config2, logger2, producer, iEventRepository)
+	schedulerScheduler := scheduler.New(config2, logger2, producer, eventRepository)
 	return schedulerScheduler, nil
 }

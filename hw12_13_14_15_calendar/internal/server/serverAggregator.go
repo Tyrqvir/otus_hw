@@ -13,10 +13,10 @@ import (
 type Server struct {
 	GRPC   *grpc.Server
 	HTTP   *rest.Server
-	logger logger.ILogger
+	logger logger.Logger
 }
 
-func NewServerAggregator(grpcServer *grpc.Server, httpServer *rest.Server, logger logger.ILogger) *Server {
+func NewServerAggregator(grpcServer *grpc.Server, httpServer *rest.Server, logger logger.Logger) *Server {
 	return &Server{
 		GRPC:   grpcServer,
 		HTTP:   httpServer,

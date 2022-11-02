@@ -16,13 +16,13 @@ type (
 	}
 
 	Sender struct {
-		logger   logger.ILogger
+		logger   logger.Logger
 		consumer IConsumer
 	}
 )
 
 func New(
-	logger logger.ILogger,
+	logger logger.Logger,
 	consumer IConsumer,
 ) *Sender {
 	return &Sender{

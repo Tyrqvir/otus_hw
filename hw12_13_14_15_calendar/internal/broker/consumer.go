@@ -11,7 +11,7 @@ import (
 type Consumer struct {
 	conn         *amqp.Connection
 	channel      *amqp.Channel
-	logger       logger.ILogger
+	logger       logger.Logger
 	dsn          string
 	exchangeName string
 	exchangeType string
@@ -22,7 +22,7 @@ type Consumer struct {
 
 func NewConsumer(
 	cfg *config.Config,
-	logger logger.ILogger,
+	logger logger.Logger,
 ) *Consumer {
 	return &Consumer{
 		logger:       logger,

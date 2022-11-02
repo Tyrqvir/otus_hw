@@ -14,7 +14,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-func NewHandler(config *config.Config, logger logger.ILogger) (http.Handler, error) {
+func NewHandler(config *config.Config, logger logger.Logger) (http.Handler, error) {
 	gw := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
 			MarshalOptions: protojson.MarshalOptions{

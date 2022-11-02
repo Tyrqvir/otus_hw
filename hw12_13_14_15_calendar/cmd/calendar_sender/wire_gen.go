@@ -15,7 +15,7 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeDIForSender(config2 *config.Config, logger2 logger.ILogger) (*sender.Sender, error) {
+func InitializeDIForSender(config2 *config.Config, logger2 logger.Logger) (*sender.Sender, error) {
 	consumer := broker.NewConsumer(config2, logger2)
 	senderSender := sender.New(logger2, consumer)
 	return senderSender, nil

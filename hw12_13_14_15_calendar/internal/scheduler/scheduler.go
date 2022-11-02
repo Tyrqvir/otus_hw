@@ -11,23 +11,23 @@ import (
 )
 
 type (
-	IPublisher interface {
+	Publisher interface {
 		Publish(ctx context.Context, body []byte) error
 	}
 
 	Scheduler struct {
-		logger     logger.ILogger
-		publisher  IPublisher
-		repository repository.IEventRepository
+		logger     logger.Logger
+		publisher  Publisher
+		repository repository.EventRepository
 		interval   time.Duration
 	}
 )
 
 func New(
 	cfg *config.Config,
-	logger logger.ILogger,
-	publisher IPublisher,
-	repository repository.IEventRepository,
+	logger logger.Logger,
+	publisher Publisher,
+	repository repository.EventRepository,
 ) *Scheduler {
 	return &Scheduler{
 		logger:     logger,

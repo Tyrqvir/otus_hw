@@ -15,7 +15,7 @@ import (
 
 func TestCalendarServer_CreateEvent(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		repository := &mocks.IEventRepository{}
+		repository := &mocks.EventRepository{}
 		event := &eventpb.CommonEvent{}
 		ctx := context.Background()
 		insertedID := int64(1)
@@ -30,7 +30,7 @@ func TestCalendarServer_CreateEvent(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		repository := &mocks.IEventRepository{}
+		repository := &mocks.EventRepository{}
 		ctx := context.Background()
 		event := &eventpb.CommonEvent{}
 
@@ -46,7 +46,7 @@ func TestCalendarServer_CreateEvent(t *testing.T) {
 
 func TestCalendarServer_DeleteEvent(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		repository := &mocks.IEventRepository{}
+		repository := &mocks.EventRepository{}
 		ctx := context.Background()
 		eventID := int64(1)
 
@@ -59,7 +59,7 @@ func TestCalendarServer_DeleteEvent(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		repository := &mocks.IEventRepository{}
+		repository := &mocks.EventRepository{}
 		ctx := context.Background()
 
 		repository.On("DeleteEvent", ctx, model.EventID(1)).Return(false, fmt.Errorf("error"))
@@ -73,7 +73,7 @@ func TestCalendarServer_DeleteEvent(t *testing.T) {
 
 func TestCalendarServer_UpdateEvent(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		repository := &mocks.IEventRepository{}
+		repository := &mocks.EventRepository{}
 		ctx := context.Background()
 		event := &eventpb.CommonEvent{}
 
@@ -88,7 +88,7 @@ func TestCalendarServer_UpdateEvent(t *testing.T) {
 
 func TestCalendarServer_EventsByPeriodAndOwner(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		repository := &mocks.IEventRepository{}
+		repository := &mocks.EventRepository{}
 
 		currentTime := timestamppb.Now()
 

@@ -17,7 +17,7 @@ const (
 	levelError = "error"
 )
 
-type ILogger interface {
+type Logger interface {
 	Info(string, ...interface{})
 	Infof(string, ...interface{})
 	Error(string, ...interface{})
@@ -27,11 +27,11 @@ type ILogger interface {
 	GetInstance() *zap.Logger
 }
 
-type Logger struct {
+type BuiltinLogger struct {
 	instance *zap.Logger
 }
 
-func (l *Logger) GetInstance() *zap.Logger {
+func (l *BuiltinLogger) GetInstance() *zap.Logger {
 	return l.instance
 }
 
@@ -49,7 +49,7 @@ func getLoggerLevel(level string) zapcore.Level {
 	return 0
 }
 
-func New(level string) *Logger {
+func New(level string) *BuiltinLogger {
 	// First, define our level-handling logic.
 	levelEnabler := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl >= getLoggerLevel(level)
@@ -75,29 +75,29 @@ func New(level string) *Logger {
 		}
 	}(logger)
 
-	return &Logger{logger}
+	return &BuiltinLogger{logger}
 }
 
-func (l *Logger) Info(s string, i ...interface{}) {
+func (l *BuiltinLogger) Info(s string, i ...interface{}) {
 	l.instance.Sugar().Infow(s, i...)
 }
 
-func (l *Logger) Infof(pattern string, i ...interface{}) {
+func (l *BuiltinLogger) Infof(pattern string, i ...interface{}) {
 	l.instance.Sugar().Infof(pattern, i...)
 }
 
-func (l *Logger) Error(s string, i ...interface{}) {
+func (l *BuiltinLogger) Error(s string, i ...interface{}) {
 	l.instance.Sugar().Errorw(s, i...)
 }
 
-func (l *Logger) Errorf(s string, i ...interface{}) {
+func (l *BuiltinLogger) Errorf(s string, i ...interface{}) {
 	l.instance.Sugar().Errorf(s, i...)
 }
 
-func (l *Logger) Debug(s string, i ...interface{}) {
+func (l *BuiltinLogger) Debug(s string, i ...interface{}) {
 	l.instance.Sugar().Debugw(s, i...)
 }
 
-func (l *Logger) Warn(s string, i ...interface{}) {
+func (l *BuiltinLogger) Warn(s string, i ...interface{}) {
 	l.instance.Sugar().Warnw(s, i...)
 }

@@ -15,7 +15,7 @@ const (
 	MemoryProvider = "in-memory"
 )
 
-func MakeStorage(config *config.Config) (repository.IEventRepository, error) {
+func MakeStorage(config *config.Config) (repository.EventRepository, error) {
 	switch config.DB.Provider {
 	case MemoryProvider:
 		return memorystorage.New(), nil

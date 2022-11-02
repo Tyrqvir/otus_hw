@@ -11,7 +11,7 @@ import (
 	"github.com/google/wire"
 )
 
-func InitializeDIForSender(config *config.Config, logger logger.ILogger) (*sender.Sender, error) {
+func InitializeDIForSender(config *config.Config, logger logger.Logger) (*sender.Sender, error) {
 	wire.Build(
 		wire.Bind(new(sender.IConsumer), new(*broker.Consumer)),
 		broker.NewConsumer,

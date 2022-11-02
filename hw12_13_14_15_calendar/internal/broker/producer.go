@@ -15,12 +15,12 @@ type Producer struct {
 	exchangeType string
 	routingKey   string
 	name         string
-	logger       logger.ILogger
+	logger       logger.Logger
 }
 
 func NewProducer(
 	cfg *config.Config,
-	logger logger.ILogger,
+	logger logger.Logger,
 ) *Producer {
 	return &Producer{
 		logger:       logger,
