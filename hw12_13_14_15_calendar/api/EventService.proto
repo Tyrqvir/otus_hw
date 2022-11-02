@@ -1,7 +1,82 @@
 syntax = "proto3";
 
 package event;
+option go_package = ".;eventpb";
 
-message Event {
-    // TODO
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+message CommonEvent{
+  string title = 1;
+  google.protobuf.Timestamp start_date= 2;
+  google.protobuf.Timestamp end_date = 3;
+  string description = 4;
+  int64 owner_id = 5;
+  google.protobuf.Timestamp notification_date = 6;
+  int64 is_notified = 7;
+}
+
+message Event{
+  int64 id = 1;
+  CommonEvent common_event = 2;
+}
+
+message CreateEventRequest {
+  CommonEvent common_event = 1;
+}
+
+message CreateEventResponse {
+  int64 inserted_id = 1;
+}
+
+message UpdateEventRequest {
+  int64 id = 1;
+  CommonEvent common_event = 2;
+}
+
+message UpdateEventResponse {
+  bool updated = 1;
+}
+
+message DeleteEventRequest {
+  int64 id = 1;
+}
+
+message DeleteEventResponse {
+  bool deleted = 1;
+}
+
+message EventListRequest {
+  int64 owner = 1;
+  google.protobuf.Timestamp start = 2;
+  google.protobuf.Timestamp end = 3;
+}
+
+message EventListResponse {
+  repeated Event events = 1;
+}
+
+service Calendar {
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {
+    option (google.api.http) = {
+      post: "/v1/events"
+      body: "*"
+    };
+  }
+  rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse) {
+    option (google.api.http) = {
+      put: "/v1/events/{id}"
+      body: "*"
+    };
+  }
+  rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse) {
+    option (google.api.http) = {
+      delete: "/v1/events/{id}"
+    };
+  }
+  rpc EventsByPeriodAndOwner(EventListRequest) returns (EventListResponse) {
+    option (google.api.http) = {
+      get: "/v1/events/period/{start}/{end}/owner/{owner}"
+    };
+  }
 }
