@@ -1,9 +1,13 @@
 [publisher]
+tag = "simple-producer"
+connectionName = "sample-producer"
+
+[rmq]
 dsn = "amqp://guest:guest@localhost:5672"
 queue = "calendar"
 exchangeName = "test-exchange"
 exchangeType = "direct"
-routingKey = "test-key"
+bindingKey = "test-key"
 
 [logger]
 level = "debug" # should be "info", "warn", "info", "error". See logger.go in logger package

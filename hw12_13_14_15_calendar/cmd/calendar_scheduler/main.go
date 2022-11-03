@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/broker"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/config"
 	globalLogger "github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/logger"
 )
@@ -27,7 +28,11 @@ func main() {
 
 	logger := globalLogger.New(cfg.Logger.Level)
 
-	scheduler, err := InitializeDIForScheduler(cfg, logger)
+	brokerConf := broker.RMQConfig{
+		Tag:            cfg.Publisher.Tag,
+		ConnectionName: cfg.Publisher.ConnectionName,
+	}
+	scheduler, err := InitializeDIForScheduler(cfg, logger, brokerConf)
 	if err != nil {
 		log.Fatalln(err)
 	}

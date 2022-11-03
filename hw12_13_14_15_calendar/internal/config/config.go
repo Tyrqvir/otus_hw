@@ -16,6 +16,7 @@ type Config struct {
 	Publisher PublisherConf
 	Consumer  ConsumerConf
 	Schedule  ScheduleConf
+	RMQ       RMQConf
 }
 
 type LoggerConf struct {
@@ -40,19 +41,21 @@ type GRPCConf struct {
 }
 
 type PublisherConf struct {
-	Dsn          string
-	QueueName    string
-	ExchangeName string
-	ExchangeType string
-	RoutingKey   string
+	Tag            string
+	ConnectionName string
 }
 
-type ConsumerConf struct {
+type RMQConf struct {
 	Dsn          string
 	QueueName    string
 	ExchangeName string
 	ExchangeType string
 	BindingKey   string
+}
+
+type ConsumerConf struct {
+	Tag            string
+	ConnectionName string
 }
 
 type ScheduleConf struct {
@@ -87,21 +90,22 @@ func NewConfig(configFile string) (*Config, error) {
 			Port: viper.GetString("grpc.port"),
 		},
 		PublisherConf{
-			Dsn:          viper.GetString("publisher.dsn"),
-			QueueName:    viper.GetString("publisher.queue"),
-			ExchangeName: viper.GetString("publisher.exchangeName"),
-			ExchangeType: viper.GetString("publisher.exchangeType"),
-			RoutingKey:   viper.GetString("publisher.routingKey"),
+			ConnectionName: viper.GetString("publisher.connectionName"),
+			Tag:            viper.GetString("publisher.tag"),
 		},
 		ConsumerConf{
-			Dsn:          viper.GetString("consumer.dsn"),
-			QueueName:    viper.GetString("consumer.queue"),
-			ExchangeName: viper.GetString("consumer.exchangeName"),
-			ExchangeType: viper.GetString("consumer.exchangeType"),
-			BindingKey:   viper.GetString("consumer.bindingKey"),
+			ConnectionName: viper.GetString("consumer.connectionName"),
+			Tag:            viper.GetString("consumer.tag"),
 		},
 		ScheduleConf{
 			Interval: viper.GetDuration("schedule.interval"),
+		},
+		RMQConf{
+			Dsn:          viper.GetString("rmq.dsn"),
+			QueueName:    viper.GetString("rmq.queue"),
+			ExchangeName: viper.GetString("rmq.exchangeName"),
+			ExchangeType: viper.GetString("rmq.exchangeType"),
+			BindingKey:   viper.GetString("rmq.bindingKey"),
 		},
 	}, nil
 }

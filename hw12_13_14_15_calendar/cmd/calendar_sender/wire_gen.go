@@ -15,8 +15,9 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeDIForSender(config2 *config.Config, logger2 logger.Logger) (*sender.Sender, error) {
-	consumer := broker.NewConsumer(config2, logger2)
-	senderSender := sender.New(logger2, consumer)
+func InitializeDIForSender(config2 *config.Config, logger2 logger.Logger, rmqConfig broker.RMQConfig) (*sender.Sender, error) {
+	connection := broker.NewConnection(rmqConfig, logger2, config2)
+	consumer := broker.NewConsumer(config2, logger2, connection)
+	senderSender := sender.New(logger2, consumer, connection)
 	return senderSender, nil
 }
