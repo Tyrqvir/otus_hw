@@ -9,10 +9,14 @@ import (
 )
 
 type Config struct {
-	Logger LoggerConf
-	DB     DBConf
-	HTTP   HTTPConf
-	GRPC   GRPCConf
+	Logger    LoggerConf
+	DB        DBConf
+	HTTP      HTTPConf
+	GRPC      GRPCConf
+	Publisher PublisherConf
+	Consumer  ConsumerConf
+	Schedule  ScheduleConf
+	RMQ       RMQConf
 }
 
 type LoggerConf struct {
@@ -34,6 +38,28 @@ type HTTPConf struct {
 
 type GRPCConf struct {
 	Port string
+}
+
+type PublisherConf struct {
+	Tag            string
+	ConnectionName string
+}
+
+type RMQConf struct {
+	Dsn          string
+	QueueName    string
+	ExchangeName string
+	ExchangeType string
+	BindingKey   string
+}
+
+type ConsumerConf struct {
+	Tag            string
+	ConnectionName string
+}
+
+type ScheduleConf struct {
+	Interval time.Duration
 }
 
 func NewConfig(configFile string) (*Config, error) {
@@ -62,6 +88,24 @@ func NewConfig(configFile string) (*Config, error) {
 		},
 		GRPCConf{
 			Port: viper.GetString("grpc.port"),
+		},
+		PublisherConf{
+			ConnectionName: viper.GetString("publisher.connectionName"),
+			Tag:            viper.GetString("publisher.tag"),
+		},
+		ConsumerConf{
+			ConnectionName: viper.GetString("consumer.connectionName"),
+			Tag:            viper.GetString("consumer.tag"),
+		},
+		ScheduleConf{
+			Interval: viper.GetDuration("schedule.interval"),
+		},
+		RMQConf{
+			Dsn:          viper.GetString("rmq.dsn"),
+			QueueName:    viper.GetString("rmq.queue"),
+			ExchangeName: viper.GetString("rmq.exchangeName"),
+			ExchangeType: viper.GetString("rmq.exchangeType"),
+			BindingKey:   viper.GetString("rmq.bindingKey"),
 		},
 	}, nil
 }

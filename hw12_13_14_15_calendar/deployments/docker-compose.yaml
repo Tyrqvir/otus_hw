@@ -1,6 +1,21 @@
 version: '3.9'
 
 services:
+  broker:
+    image: rabbitmq:3.11.2
+    container_name: broker
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmqctl status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - broker:/var/lib/rabbitmq/
+      - broker:/var/log/rabbitmq
+    ports:
+      - ${BROKER_ADMIN_PORT}:15672
+      - ${BROKER_PORT}:5672
+
   calendar:
     build:
       context: ./..
@@ -17,6 +32,34 @@ services:
       - ${GRPC_PORT}:8889
     depends_on:
       db:
+        condition: service_healthy
+
+  calendar_scheduler:
+    container_name: calendar_scheduler
+    build:
+      context: ./..
+      dockerfile: ./build/Dockerfile
+      args:
+        BIN_FILE: "/opt/calendar/scheduler-app"
+        APP_FOLDER: "calendar_scheduler"
+        CONFIG_FILE_EXTERNAL: "./configs/scheduler_config.toml"
+    environment:
+      STORAGE_DSN : "host=db port=$DB_PORT user=$DB_USER password=$DB_PASSWORD dbname=$DB_NAME sslmode=disable"
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  calendar_sender:
+    container_name: calendar_sender
+    build:
+      context: ./..
+      dockerfile: ./build/Dockerfile
+      args:
+        BIN_FILE: "/opt/calendar/sender-app"
+        APP_FOLDER: "calendar_sender"
+        CONFIG_FILE_EXTERNAL: "./configs/sender_config.toml"
+    depends_on:
+      broker:
         condition: service_healthy
 
   db:

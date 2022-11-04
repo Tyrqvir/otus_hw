@@ -18,12 +18,12 @@ import (
 
 // Injectors from wire.go:
 
-func setupWire(config2 *config.Config, logger2 logger.ILogger) (*server.Server, error) {
-	iEventRepository, err := factory.MakeStorage(config2)
+func setupWire(config2 *config.Config, logger2 logger.Logger) (*server.Server, error) {
+	eventRepository, err := factory.MakeStorage(config2)
 	if err != nil {
 		return nil, err
 	}
-	calendarServer := service.NewCalendarServer(iEventRepository)
+	calendarServer := service.NewCalendarServer(eventRepository)
 	grpcServer := grpc.New(calendarServer, logger2, config2)
 	handler, err := rest.NewHandler(config2, logger2)
 	if err != nil {

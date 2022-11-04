@@ -19,7 +19,7 @@ func (rd *responseWriterDecorator) WriteHeader(status int) {
 	rd.ResponseWriter.WriteHeader(status)
 }
 
-func loggingMiddleware(next http.Handler, logger logger.ILogger) http.Handler {
+func loggingMiddleware(next http.Handler, logger logger.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		wd := &responseWriterDecorator{ResponseWriter: w}
 

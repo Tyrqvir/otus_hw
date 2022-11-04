@@ -32,14 +32,27 @@ down: ## docker down
 build-calendar: ## build calendar
 	go build -v -o $(CALENDAR_BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
-run: run-calendar## run all binaries
+build-scheduler: ## build scheduler
+	go build -v -o $(SCHEDULER_BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar_scheduler
+
+build-sender: ## build sender
+	go build -v -o $(SENDER_BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar_sender
+
+
+run: run-calendar run-scheduler run-sender ## run all binaries
 
 run-calendar: build-calendar ## run calendar
 	$(CALENDAR_BIN) -config ./configs/calendar_config.toml
 
-build: build-calendar ## build all app
+run-scheduler: build-scheduler ## run scheduler
+	$(SCHEDULER_BIN) -config ./configs/scheduler_config.toml
 
-build-img: build-calendar-img ## build all images
+run-sender: build-sender ## run sender
+	$(SENDER_BIN) -config ./configs/sender_config.toml
+
+build: build-calendar build-scheduler build-sender ## build all app
+
+build-img: build-calendar-img build-scheduler-img build-sender-img ## build all images
 
 build-calendar-img: ## build calendar image
 	docker build \
@@ -50,10 +63,40 @@ build-calendar-img: ## build calendar image
 		-t $(CALENDAR_DOCKER_IMG) \
 		-f build/Dockerfile .
 
+build-scheduler-img:  ## build scheduler image
+	docker build \
+		--build-arg=LDFLAGS="$(LDFLAGS)" \
+		--build-arg=BIN_FILE="/opt/calendar/scheduler-app" \
+		--build-arg=APP_FOLDER="calendar_scheduler" \
+		--build-arg=CONFIG_FILE_EXTERNAL="configs/scheduler_config.toml" \
+		-t $(SCHEDULER_DOCKER_IMG) \
+		-f build/Dockerfile .
+
+build-sender-img: ## build sender image
+	docker build \
+		--build-arg=LDFLAGS="$(LDFLAGS)" \
+		--build-arg=BIN_FILE="/opt/calendar/sender-app" \
+		--build-arg=APP_FOLDER="calendar_sender" \
+		--build-arg=CONFIG_FILE_EXTERNAL="configs/sender_config.toml" \
+		-t $(SENDER_DOCKER_IMG) \
+		-f build/Dockerfile .
+
+build-integration-tests-img: ## build integration tests img
+	docker build \
+		--build-arg=CONFIG_FILE_EXTERNAL="configs/calendar_config.toml" \
+		-t $(INTERGRATION_TEST_DOCKER_IMG) \
+		-f build/test/Dockerfile .
+
 run-calendar-img: build-calendar-img ## run calendar image
 	docker run $(CALENDAR_DOCKER_IMG)
 
-run-img: run-calendar-img ## run all images
+run-scheduler-img: build-scheduler-img ## run scheduler image
+	docker run $(SCHEDULER_DOCKER_IMG)
+
+run-sender-img: build-sender-img ## run sender image
+	docker run $(SENDER_DOCKER_IMG)
+
+run-img: run-calendar-img run-scheduler-img run-sender-img ## run all images
 
 version: build-calendar ## show version of calendar
 	$(CALENDAR_BIN) version
@@ -82,6 +125,8 @@ test-packages: ## Test all packages
 
 wire: ## Run DI generating
 	wire cmd/calendar/wire.go
+	wire cmd/calendar_scheduler/wire.go
+	wire cmd/calendar_sender/wire.go
 
 migrate:
 	goose -dir migrations/ postgres "host=localhost port=5432 user=postgres password=megapass dbname=calendar sslmode=disable" up
