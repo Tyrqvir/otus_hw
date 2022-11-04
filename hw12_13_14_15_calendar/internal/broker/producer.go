@@ -9,63 +9,42 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+type Publisher interface {
+	Publish(ctx context.Context, body []byte) error
+}
+
 type Producer struct {
-	dsn          string
 	exchangeName string
-	exchangeType string
 	routingKey   string
-	name         string
-	logger       logger.ILogger
+	logger       logger.Logger
+	connection   *Connection
 }
 
 func NewProducer(
 	cfg *config.Config,
-	logger logger.ILogger,
+	logger logger.Logger,
+	connection *Connection,
 ) *Producer {
 	return &Producer{
 		logger:       logger,
-		dsn:          cfg.Publisher.Dsn,
-		name:         cfg.Publisher.QueueName,
-		exchangeName: cfg.Publisher.ExchangeName,
-		exchangeType: cfg.Publisher.ExchangeType,
-		routingKey:   cfg.Publisher.RoutingKey,
+		exchangeName: cfg.RMQ.ExchangeName,
+		routingKey:   cfg.RMQ.BindingKey,
+		connection:   connection,
 	}
 }
 
 func (p *Producer) Publish(ctx context.Context, body []byte) error {
-	cfg := amqp.Config{Properties: amqp.NewConnectionProperties()}
-	cfg.Properties.SetClientConnectionName("sample-producer")
-	p.logger.Infof("dialing %q", p.dsn)
-	connection, err := amqp.DialConfig(p.dsn, cfg)
-	if err != nil {
-		return fmt.Errorf("dial: %w", err)
+	select {
+	case err := <-p.connection.err:
+		if err != nil {
+			p.connection.Reconnect()
+		}
+	default:
 	}
-	defer connection.Close()
-
-	p.logger.Info("got Connection, getting Channel")
-	channel, err := connection.Channel()
-	if err != nil {
-		return fmt.Errorf("channel: %w", err)
-	}
-
-	p.logger.Infof("got Channel, declaring %q Exchange (%q)", p.exchangeType, p.exchangeName)
-	if err := channel.ExchangeDeclare(
-		p.exchangeName, // queueName
-		p.exchangeType, // type
-		true,           // durable
-		false,          // auto-deleted
-		false,          // internal
-		false,          // noWait
-		nil,            // arguments
-	); err != nil {
-		return fmt.Errorf("exchange Declare: %w", err)
-	}
-
-	p.logger.Info("declared Exchange, publishing messages")
 
 	p.logger.Infof("publishing %dB body (%q)", len(body), body)
 
-	err = channel.PublishWithContext(ctx,
+	err := p.connection.channel.PublishWithContext(ctx,
 		p.exchangeName, // publish to an exchangeName
 		p.routingKey,   // routing to 0 or more queues
 		false,          // mandatory
@@ -79,7 +58,6 @@ func (p *Producer) Publish(ctx context.Context, body []byte) error {
 			// a bunch of application/implementation-specific fields
 		},
 	)
-
 	if err != nil {
 		return fmt.Errorf("exchange Publish: %w", err)
 	}

@@ -20,11 +20,11 @@ import (
 type Server struct {
 	server  *grpc.Server
 	address string
-	logger  logger.ILogger
+	logger  logger.Logger
 	config  *config.Config
 }
 
-func New(calendarServer eventpb.CalendarServer, logger logger.ILogger, config *config.Config) *Server {
+func New(calendarServer eventpb.CalendarServer, logger logger.Logger, config *config.Config) *Server {
 	zapLogger := logger.GetInstance()
 	server := grpc.NewServer(
 		grpc_middleware.WithUnaryServerChain(

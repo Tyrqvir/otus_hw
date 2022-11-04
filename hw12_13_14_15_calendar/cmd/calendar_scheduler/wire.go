@@ -12,10 +12,14 @@ import (
 	"github.com/google/wire"
 )
 
-func InitializeDIForScheduler(config *config.Config, logger logger.ILogger) (*scheduler.Scheduler, error) {
+func InitializeDIForScheduler(
+	config *config.Config,
+	logger logger.Logger,
+	rmqConfig broker.RMQConfig,
+) (*scheduler.Scheduler, error) {
 	wire.Build(
-		wire.Bind(new(scheduler.IPublisher), new(*broker.Producer)),
 		factory.MakeStorage,
+		broker.NewConnection,
 		broker.NewProducer,
 		scheduler.New,
 	)

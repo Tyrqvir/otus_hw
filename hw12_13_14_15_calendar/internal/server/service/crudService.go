@@ -15,10 +15,10 @@ import (
 type CalendarServer struct {
 	eventpb.UnimplementedCalendarServer
 
-	repository repository.IEventRepository
+	repository repository.EventRepository
 }
 
-func NewCalendarServer(repository repository.IEventRepository) *CalendarServer {
+func NewCalendarServer(repository repository.EventRepository) *CalendarServer {
 	return &CalendarServer{
 		repository: repository,
 	}

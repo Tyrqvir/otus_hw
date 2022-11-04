@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/broker"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/internal/repository"
@@ -11,29 +12,30 @@ import (
 )
 
 type (
-	IPublisher interface {
-		Publish(ctx context.Context, body []byte) error
-	}
-
 	Scheduler struct {
-		logger     logger.ILogger
-		publisher  IPublisher
-		repository repository.IEventRepository
-		interval   time.Duration
+		logger         logger.Logger
+		publisher      *broker.Producer
+		connection     *broker.Connection
+		repository     repository.EventRepository
+		interval       time.Duration
+		connectionName string
 	}
 )
 
 func New(
 	cfg *config.Config,
-	logger logger.ILogger,
-	publisher IPublisher,
-	repository repository.IEventRepository,
+	logger logger.Logger,
+	publisher *broker.Producer,
+	connection *broker.Connection,
+	repository repository.EventRepository,
 ) *Scheduler {
 	return &Scheduler{
-		logger:     logger,
-		publisher:  publisher,
-		repository: repository,
-		interval:   cfg.Schedule.Interval,
+		logger:         logger,
+		publisher:      publisher,
+		connection:     connection,
+		repository:     repository,
+		interval:       cfg.Schedule.Interval,
+		connectionName: cfg.Publisher.ConnectionName,
 	}
 }
 
@@ -42,6 +44,14 @@ func (s *Scheduler) Handle(ctx context.Context) {
 
 	ticker := time.NewTicker(s.interval)
 	defer ticker.Stop()
+
+	if err := s.connection.Connect(); err != nil {
+		s.logger.Error("connect:" + err.Error())
+	}
+
+	if err := s.connection.BindQueue(); err != nil {
+		s.logger.Error("bind queue:" + err.Error())
+	}
 
 	for {
 		go func() {

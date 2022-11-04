@@ -13,10 +13,10 @@ import (
 
 type Server struct {
 	httpServer http.Server
-	logger     logger.ILogger
+	logger     logger.Logger
 }
 
-func New(h http.Handler, logger logger.ILogger, config *config.Config) *Server {
+func New(h http.Handler, logger logger.Logger, config *config.Config) *Server {
 	return &Server{
 		logger: logger,
 		httpServer: http.Server{
