@@ -45,7 +45,7 @@ services:
         CONFIG_FILE_EXTERNAL: "./configs/scheduler_config.toml"
     environment:
       STORAGE_DSN : "host=db port=$DB_PORT user=$DB_USER password=$DB_PASSWORD dbname=$DB_NAME sslmode=disable"
-      PUBLISHER_DSN : "amqp://guest:guest@broker:5672"
+      RMQ_DSN : "amqp://guest:guest@broker:5672"
     depends_on:
       broker:
         condition: service_healthy
@@ -60,7 +60,7 @@ services:
         APP_FOLDER: "calendar_sender"
         CONFIG_FILE_EXTERNAL: "./configs/sender_config.toml"
     environment:
-      CONSUMER_DSN: "amqp://guest:guest@broker:5672"
+      RMQ_DSN: "amqp://guest:guest@broker:5672"
     depends_on:
       broker:
         condition: service_healthy

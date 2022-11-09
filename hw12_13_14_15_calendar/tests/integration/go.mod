@@ -3,10 +3,10 @@ module github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar/tests/integration
 go 1.18
 
 require (
-	github.com/Tyrqvir/otus_hw/hw12_13_14_15_calendar v0.0.0-20221020040139-6f7aa6cea588
 	github.com/cucumber/godog v0.12.5
 	github.com/cucumber/messages-go/v16 v16.0.1
 	github.com/jackc/pgx/v5 v5.0.4
+	github.com/spf13/viper v1.13.0
 )
 
 require (
@@ -27,7 +27,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.13.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect

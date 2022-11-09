@@ -164,7 +164,20 @@ func (a *apiFeature) theResponseShouldBeContainsKey(key string) (err error) {
 }
 
 func (a *apiFeature) theResponseShouldMatchJSON(resp *godog.DocString) error {
-	var expected, actual interface{}
+	type Result struct {
+		Events []struct {
+			CommonEvent struct {
+				Title            string    `json:"title"`
+				StartDate        time.Time `json:"start_date"`
+				EndDate          time.Time `json:"end_date"`
+				Description      string    `json:"description"`
+				OwnerID          string    `json:"owner_id"`
+				NotificationDate time.Time `json:"notification_date"`
+			} `json:"common_event"`
+		} `json:"events"`
+	}
+
+	var expected, actual Result
 
 	err := json.NewDecoder(strings.NewReader(resp.Content)).Decode(&expected)
 	if err != nil {
