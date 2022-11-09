@@ -9,6 +9,7 @@ DOCKER_COMPOSE_FOLDER := ./deployments
 DOCKER_FILE := $(DOCKER_COMPOSE_FOLDER)/docker-compose.yaml
 DOCKER_TEST_FILE := $(DOCKER_COMPOSE_FOLDER)/docker-compose.test.yaml
 DOCKER_TEST_ENV := $(DOCKER_COMPOSE_FOLDER)/.env.testing
+INTEGRATION_TEST_PREFIX := docker-compose -f $(DOCKER_FILE) -f $(DOCKER_TEST_FILE) --env-file $(DOCKER_TEST_ENV)
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
@@ -130,5 +131,10 @@ wire: ## Run DI generating
 
 migrate:
 	goose -dir migrations/ postgres "host=localhost port=5432 user=postgres password=megapass dbname=calendar sslmode=disable" up
+
+integration-tests:
+	$(INTEGRATION_TEST_PREFIX) up -d migration
+	$(INTEGRATION_TEST_PREFIX) up --build calendar_integration_test --exit-code-from calendar_integration_test
+	$(INTEGRATION_TEST_PREFIX) down --volumes --remove-orphans
 
 full: lint tests build run build-img run-img version
